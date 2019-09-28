@@ -422,6 +422,7 @@ class Page extends WeModuleSite
 			}
 		}
 
+
 		if (!is_file($source)) {
 			exit('Error: template source \'' . $filename . '\' is not exist!');
 		}

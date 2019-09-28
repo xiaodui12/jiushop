@@ -15,9 +15,25 @@
         <div class="tab-pane active">
             <div class="panel-body">
 
+
                 <div class="form-group">
+                    <label class="col-lg control-label">
+                        发送方式</label>
+                    <div class="col-sm-9 col-xs-12">
+                        <div class="input-group">
+                            <label class="radio radio-inline">
+                                <input type="radio" name="is_cate" onchange="change_cart()" value="0" <?php  if(intval($item['is_cate']) !=1) { ?>checked="checked"<?php  } ?>> 商品
+                            </label>
+                            <label class="radio radio-inline">
+                                <input type="radio" name="is_cate"  onchange="change_cart()" value="1" <?php  if(intval($item['is_cate']) ==1 ) { ?>checked="checked"<?php  } ?>> 商品分类
+                            </label>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group is_cate_0" style="<?php  if(intval($item['is_cate']) ==1) { ?>display:none<?php  } ?>">
                     <?php if( ce('sale.coupon' ,$item) ) { ?>
-                    <label class="col-lg control-label">选择商品</label>
+                    <label class="col-lg control-label">
+                        选择商品</label>
                     <div class="col-sm-9 col-xs-12">
                         <?php  echo tpl_selector('goodsid',array(
                     'preview'=>false,
@@ -43,6 +59,20 @@
                     <?php  } ?>
                     <?php  } ?>
 
+                </div>
+                <?php $cates=empty($item['cate_id'])?[]: explode(",", $item['cate_id']);?>
+                <div class="form-group is_cate_1" style="<?php  if(intval($item['is_cate']) !=1) { ?>display:none<?php  } ?>">
+                    <label class="col-lg control-label">
+
+                        商品分类</label>
+                    <div class="col-sm-9 col-xs-12">
+                        <select id="cates"  name='cates[]' class="form-control select2" style='width:605px;' multiple='' >
+                            <?php  if(is_array($category)) { foreach($category as $c) { ?>
+                            <option value="<?php  echo $c['id'];?>" <?php  if(is_array($cates) &&  in_array($c['id'],$cates)) { ?>selected<?php  } ?>><?php  echo $c['name'];?></option>
+                            <?php  } } ?>
+                        </select>
+
+                    </div>
                 </div>
 
                 <div class="form-group">
@@ -71,6 +101,8 @@
                     <?php  } ?>
                     <?php  } ?>
                 </div>
+
+
 
 
 
@@ -175,4 +207,11 @@
     </form>
 
 </div>
+<script type="text/javascript">
+    function change_cart() {
+        var is_cate=$("[name=is_cate]:checked").val();
+        $(".is_cate_0,.is_cate_1").hide();
+        $(".is_cate_"+is_cate).show();
+    }
+</script>
 <?php (!empty($this) && $this instanceof WeModuleSite || 1) ? (include $this->template('_footer', TEMPLATE_INCLUDEPATH)) : (include template('_footer', TEMPLATE_INCLUDEPATH));?>

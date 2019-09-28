@@ -32,6 +32,20 @@ class Goodssend_EweiShopV2Page extends ComWebPage
             left  join  ' . tablename('ewei_shop_goods') . '  g on cg.goodsid =g.id
             left  join  ' . tablename('ewei_shop_coupon') . '  c on cg.couponid =c.id
                     WHERE 1 ' . $condition . ' ', $params);
+
+//		foreach ($goodssends as $key=>$value){
+//			if($value["is_cate"]==1&&$value["cate_id"]!=",,")
+//			{
+//				$sql="select GROUP_CONCAT(name) from ".tablename("ewei_shop_category")." cg WHERE 1 ".$condition ." and id in :id  group by uniacid";
+//				var_dump($sql);
+//                $params_category=$params;
+//                $params_category[":id"]=explode(",",$value["cate_id"]);
+//                var_dump($params_category);
+//                var_dump(pdo_fetch($sql,$params_category));
+//			}
+//		}
+//		exit;
+
 		$pager = pagination($total, $pindex, $psize);
 		include $this->template();
 	}
@@ -81,6 +95,7 @@ class Goodssend_EweiShopV2Page extends ComWebPage
 			}
 		}
 
+
 		if ($_W['ispost']) {
 			if (intval($_GPC['sendnum']) < 1) {
 				show_json(0, '发送数量不能小于1');
@@ -93,8 +108,15 @@ class Goodssend_EweiShopV2Page extends ComWebPage
 			if (intval($_GPC['sendpoint']) == 0) {
 				show_json(0, '发送节点未选择');
 			}
-
 			$data = array('uniacid' => $uniacid, 'goodsid' => floatval($_GPC['goodsid']), 'couponid' => intval($_GPC['couponid']), 'starttime' => strtotime($_GPC['sendtime']['start']), 'endtime' => strtotime($_GPC['sendtime']['end']) + 86399, 'sendnum' => intval($_GPC['sendnum']), 'num' => intval($_GPC['num']), 'sendpoint' => intval($_GPC['sendpoint']), 'status' => intval($_GPC['status']));
+            $data["is_cate"]=floatval($_GPC['is_cate']);
+            $data["cate_id"]=",".implode(",",$_GPC['cates']).",";
+
+            if($data["is_cate"]==0){
+                $data["cate_id"]="";
+			}else{
+                $data["goodsid"]=0;
+			}
 
 			if (!empty($id)) {
 				pdo_update('ewei_shop_coupon_goodsendtask', $data, array('id' => $id));
@@ -116,6 +138,8 @@ class Goodssend_EweiShopV2Page extends ComWebPage
 		if (empty($item['endtime'])) {
 			$item['endtime'] = time() + 60 * 60 * 24 * 7;
 		}
+        $category = m('shop')->getFullCategory(true, true);
+
 
 		include $this->template();
 	}
