@@ -647,7 +647,6 @@ class Member_EweiShopV2Model
 			m('notice')->sendMemberUpgradeMessage($openid, $oldlevel, $level);
 		}
 	}
-
 	/**
      * 根据会员等级ID升级会员
      * @param type $mid

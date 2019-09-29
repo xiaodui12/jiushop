@@ -1219,6 +1219,7 @@ class Coupon_EweiShopV2ComModel extends ComModel
 	{
 		global $_W;
 		$pdata = m('common')->getPluginset('coupon');
+
 		$order = pdo_fetch('select id,openid,price  from ' . tablename('ewei_shop_order') . ' where id=:id   and uniacid=:uniacid limit 1', array(':id' => intval($orderid), ':uniacid' => $_W['uniacid']));
 
 		if (empty($order)) {
@@ -1239,13 +1240,33 @@ class Coupon_EweiShopV2ComModel extends ComModel
 			}
 		}
 
+		/**
+		 * 购指定商品，指定商品分类送优惠券
+		 * 修改人 lin
+		 * 修改内容（原只有根据商品id得到优惠券，现根据后台设置，可以根据不同商品，和分类进行得到可发送）
+		*/
 		if ($pdata['isopengoodssendtask'] == 1) {
-			$goodssendtasks = pdo_fetchall('select  og.id,og.goodsid,og.orderid,og.parentorderid,og.total,gst.id as taskid,gst.couponid,gst.sendnum,gst.sendpoint,gst.num
-            from ' . tablename('ewei_shop_coupon_goodsendtask') . ' gst
-            inner join ' . tablename('ewei_shop_order_goods') . ' og on og.goodsid =gst.goodsid  and (orderid=:orderid or parentorderid=:orderid)
-            where  og.uniacid=:uniacid and og.openid=:openid and gst.num>=gst.sendnum and gst.status = 1', array(':uniacid' => $_W['uniacid'], ':openid' => $_W['openid'], ':orderid' => $orderid));
+
+
+
+            $sql="select  og.id,og.goodsid,og.orderid,og.parentorderid,og.total,gst.id as taskid,gst.couponid,gst.sendnum,gst.sendpoint,gst.num
+            from ims_ewei_shop_coupon_goodsendtask gst
+            inner join ims_ewei_shop_order_goods og on  (orderid=:orderid or parentorderid=:orderid)
+            right join  ims_ewei_shop_goods goods on og.goodsid=goods.id and 
+(( gst.is_cate!=1 and goods.id=gst.goodsid) or (gst.is_cate=1  and gst.cate_id REGEXP replace(goods.cates,',','|')))
+            where   og.uniacid=:uniacid and og.openid=:openid  and gst.num>=gst.sendnum and gst.status = 1 and (( gst.is_cate!=1 and goods.id=gst.goodsid) or (gst.is_cate=1  and gst.cate_id REGEXP replace(goods.cates,',','|')))";
+
+            $goodssendtasks = pdo_fetchall($sql, array(':uniacid' => $_W['uniacid'], ':openid' => $_W['openid'], ':orderid' => $orderid));
+
+//			$goodssendtasks = pdo_fetchall('select  og.id,og.goodsid,og.orderid,og.parentorderid,og.total,gst.id as taskid,gst.couponid,gst.sendnum,gst.sendpoint,gst.num
+//            from ' . tablename('ewei_shop_coupon_goodsendtask') . ' gst
+//            inner join ' . tablename('ewei_shop_order_goods') . ' og on og.goodsid =gst.goodsid  and (orderid=:orderid or parentorderid=:orderid)
+//            where  og.uniacid=:uniacid and og.openid=:openid and gst.num>=gst.sendnum and gst.status = 1', array(':uniacid' => $_W['uniacid'], ':openid' => $_W['openid'], ':orderid' => $orderid));
+
+
 
 			foreach ($goodssendtasks as $task) {
+
 				$data = array('uniacid' => $_W['uniacid'], 'openid' => $_W['openid'], 'taskid' => intval($task['taskid']), 'couponid' => intval($task['couponid']), 'sendnum' => intval($task['total']) * intval($task['sendnum']), 'tasktype' => 2, 'orderid' => intval($task['orderid']), 'parentorderid' => intval($task['parentorderid']), 'createtime' => time(), 'status' => 0, 'sendpoint' => intval($task['sendpoint']));
 				pdo_insert('ewei_shop_coupon_taskdata', $data);
 				$num = intval($task['num']) - intval($task['total']) * intval($task['sendnum']);

@@ -82,6 +82,14 @@ class Level_EweiShopV2Page extends WebPage
 			$data = array('uniacid' => $_W['uniacid'], 'level' => intval($_GPC['level']), 'levelname' => trim($_GPC['levelname']), 'ordercount' => intval($_GPC['ordercount']), 'ordermoney' => $_GPC['ordermoney'], 'discount' => trim($_GPC['discount']), 'enabled' => $enabled);
 			$goodsids = iserializer($_GPC['goodsids']);
 			$buygoods = intval($_GPC['buygoods']);
+			$condition_cates = ",".implode(",", $_GPC['condition_cates']).",";
+			$condition_cates_number = intval($_GPC['condition_cates_number']);
+			$discount_type = intval($_GPC['discount_type']);
+            $discount_type_cate = ",".implode(",", $_GPC['discount_type_cate']).",";
+
+
+
+
 
 			if (!empty($id)) {
 				if ($id == 'default') {
@@ -94,6 +102,13 @@ class Level_EweiShopV2Page extends WebPage
 				else {
 					$data['goodsids'] = $goodsids;
 					$data['buygoods'] = $buygoods;
+
+					$data['condition_cates'] = $condition_cates;
+					$data['condition_cates_number'] = $condition_cates_number;
+					$data['discount_type'] = $discount_type;
+					$data['discount_type_cate'] = $discount_type_cate;
+
+
 					$updatecontent = '<br/>等级名称: ' . $level['levelname'] . '->' . $data['levelname'] . ('<br/>折扣: ' . $level['leveldiscount'] . '->' . $data['discount']);
 					pdo_update('ewei_shop_member_level', $data, array('id' => $id, 'uniacid' => $_W['uniacid']));
 					plog('member.level.edit', '修改会员等级 ID: ' . $id . $updatecontent);
@@ -102,6 +117,11 @@ class Level_EweiShopV2Page extends WebPage
 			else {
 				$data['goodsids'] = $goodsids;
 				$data['buygoods'] = $buygoods;
+                $data['condition_cates'] = $condition_cates;
+                $data['condition_cates_number'] = $condition_cates_number;
+                $data['discount_type'] = $discount_type;
+                $data['discount_type_cate'] = $discount_type_cate;
+
 				pdo_insert('ewei_shop_member_level', $data);
 				$id = pdo_insertid();
 				plog('member.level.add', '添加会员等级 ID: ' . $id);
@@ -117,6 +137,8 @@ class Level_EweiShopV2Page extends WebPage
 			$level_array[$i] = $i;
 			++$i;
 		}
+
+        $category = m('shop')->getFullCategory(true, true);
 
 		include $this->template();
 	}

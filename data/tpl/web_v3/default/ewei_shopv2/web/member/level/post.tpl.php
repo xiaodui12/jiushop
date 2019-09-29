@@ -53,6 +53,10 @@
                 <label class='radio-inline'>
                     <input type='radio' name='buygoods' value='1' onclick="chose(1)"  <?php  if($level['buygoods']==1) { ?>checked<?php  } ?> /> 购买指定商品
                 </label>
+
+                <label class='radio-inline'>
+                    <input type='radio' name='buygoods' value='1' onclick="chose(2)"  <?php  if($level['buygoods']==2) { ?>checked<?php  } ?> /> 购买指定商品
+                </label>
                 <?php  } else { ?>
                 <div class='form-control-static'><?php  if(empty($item['enabled'])) { ?>隐藏<?php  } else { ?>显示<?php  } ?></div>
                 <?php  } ?>
@@ -115,12 +119,49 @@
                     <span class='help-block'>会员升级条件，不填写默认为不自动升级, 设置<a href="<?php  echo webUrl('sysset/member')?>">【会员升级依据】</a> </span>
                 </div>
                 </div>
+<div class="col-sm-9 col-xs-12" id="typethree" <?php  if($level['buygoods']!='2') { ?>style="display:none"<?php  } ?>>
+<div class=' fixsingle-input-group' style="width: 800px;">
+    <div class="col-sm-9 col-xs-12">
+        <?php $condition_cates=empty($level['condition_cates'])?[]: explode(",", $level['condition_cates']);?>
+        <select id="cates"  name='condition_cates[]' class="form-control select2" style='width:605px;' multiple='' data-placeholder="请选择分类" >
+            <?php  if(is_array($category)) { foreach($category as $c) { ?>
+            <option value="<?php  echo $c['id'];?>" <?php  if(is_array($cates) &&  in_array($c['id'],$condition_cates)) { ?>selected<?php  } ?>><?php  echo $c['name'];?></option>
+            <?php  } } ?>
+        </select>
+        <label class="control-label">
+            购买分类中商品次数
+        </label>
+
+        <select name="condition_cates_number" class="form-control select2" >
+            <?php  for($index=1;$index<=10;$index++){?>
+            <option value="<?php  echo $index;?>" <?php  if($level['condition_cates_number']==$index) { ?>selected<?php  } ?>><?php  echo $index;?></option>
+            <?php }?>
+        </select>
+    </div>
+</div>
+<div class="col-sm-9">
+    <span class='help-block'>会员升级条件，不填写默认为不自动升级, 设置<a href="<?php  echo webUrl('sysset/member')?>">【会员升级依据】</a> </span>
+</div>
+</div>
+
             </div>
         <?php  } ?>
-
+        <div class="form-group">
+    <label class="col-lg control-label">折扣类型</label>
+    <div class="col-sm-9 col-xs-12">
+        <div class="input-group">
+            <label class="radio radio-inline">
+                <input type="radio" name="discount_type" onchange="change_discount()" value="0" <?php  if(intval($level['discount_type']) !=1) { ?>checked="checked"<?php  } ?>> 折扣
+            </label>
+            <label class="radio radio-inline">
+                <input type="radio" name="discount_type"  onchange="change_discount()" value="1" <?php  if(intval($level['discount_type']) ==1 ) { ?>checked="checked"<?php  } ?>> 分类购买权限
+            </label>
+        </div>
+    </div>
+</div>
         <div class="form-group">
             <label class="col-lg control-label">折扣</label>
-            <div class="col-sm-9 col-xs-12">
+            <div class="col-sm-9 col-xs-12" id="discount_type_0" style="<?php  if(intval($level['discount_type']) ==1) { ?>display:none<?php  } ?>">
                 <?php if( ce('member.level' ,$level) ) { ?>
                     <div class="input-group fixsingle-input-group">
                         <input type="text" name="discount" class="form-control" value="<?php  echo $level['discount'];?>" />
@@ -136,6 +177,14 @@
                         <?php  } ?>
                     </div>
                 <?php  } ?>
+            </div>
+            <div class="col-sm-9 col-xs-12" id="discount_type_1"  style="<?php  if(intval($level['discount_type']) !=1) { ?>display:none<?php  } ?>">
+                <?php $discount_type_cate=empty($level['discount_type_cate'])?[]: explode(",", $level['discount_type_cate']);?>
+                <select id="discount_type"  name='discount_type_cate[]' class="form-control select2" style='width:605px;' multiple='' data-placeholder="请选择分类" >
+                    <?php  if(is_array($category)) { foreach($category as $c) { ?>
+                    <option value="<?php  echo $c['id'];?>" <?php  if(is_array($cates) &&  in_array($c['id'],$discount_type_cate)) { ?>selected<?php  } ?>><?php  echo $c['name'];?></option>
+                    <?php  } } ?>
+                </select>
             </div>
         </div>
         <div class="form-group" <?php  if($id=='default') { ?>style="display: none;"<?php  } ?>>
@@ -171,10 +220,22 @@
        if (num == 0){
            $("#typeone").show();
            $("#typetwo").hide();
-       }else{
+           $("#typethree").hide();
+       }else if(num == 1){
            $("#typeone").hide();
            $("#typetwo").show();
+           $("#typethree").hide();
+       }else{
+           $("#typeone").hide();
+           $("#typetwo").hide();
+           $("#typethree").show();
        }
+   }
+   function change_discount() {
+       var discount_type=$("[name=discount_type]:checked").val();
+       $("#discount_type_1,#discount_type_0").hide()
+
+       $("#discount_type_"+discount_type).show();
    }
 </script>
 <?php (!empty($this) && $this instanceof WeModuleSite || 1) ? (include $this->template('_footer', TEMPLATE_INCLUDEPATH)) : (include template('_footer', TEMPLATE_INCLUDEPATH));?>

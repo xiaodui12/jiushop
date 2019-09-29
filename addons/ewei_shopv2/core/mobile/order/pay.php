@@ -639,6 +639,7 @@ class Pay_EweiShopV2Page extends MobileLoginPage
 
 	public function complete()
 	{
+
 		global $_W;
 		global $_GPC;
 		$orderid = intval($_GPC['id']);
@@ -709,6 +710,7 @@ class Pay_EweiShopV2Page extends MobileLoginPage
 		}
 
 		$set = m('common')->getSysset(array('shop', 'pay'));
+
 		$set['pay']['weixin'] = !empty($set['pay']['weixin_sub']) ? 1 : $set['pay']['weixin'];
 		$set['pay']['weixin_jie'] = !empty($set['pay']['weixin_jie_sub']) ? 1 : $set['pay']['weixin_jie'];
 		$member = m('member')->getMember($openid, true);
@@ -723,6 +725,7 @@ class Pay_EweiShopV2Page extends MobileLoginPage
 				$go_flag = 1;
 			}
 		}
+
 
 		if ($go_flag == 1) {
 			$pay_result = true;

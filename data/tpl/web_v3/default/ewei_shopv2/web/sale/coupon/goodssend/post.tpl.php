@@ -18,14 +18,14 @@
 
                 <div class="form-group">
                     <label class="col-lg control-label">
-                        发送方式</label>
+                        优惠券发送限制</label>
                     <div class="col-sm-9 col-xs-12">
                         <div class="input-group">
                             <label class="radio radio-inline">
-                                <input type="radio" name="is_cate" onchange="change_cart()" value="0" <?php  if(intval($item['is_cate']) !=1) { ?>checked="checked"<?php  } ?>> 商品
+                                <input type="radio" name="is_cate" onchange="change_cart()" value="0" <?php  if(intval($item['is_cate']) !=1) { ?>checked="checked"<?php  } ?>> 允许下面商品发送
                             </label>
                             <label class="radio radio-inline">
-                                <input type="radio" name="is_cate"  onchange="change_cart()" value="1" <?php  if(intval($item['is_cate']) ==1 ) { ?>checked="checked"<?php  } ?>> 商品分类
+                                <input type="radio" name="is_cate"  onchange="change_cart()" value="1" <?php  if(intval($item['is_cate']) ==1 ) { ?>checked="checked"<?php  } ?>> 允许以下商品分类发送
                             </label>
                         </div>
                     </div>

@@ -205,7 +205,10 @@ class Order_EweiShopV2Model {
                     }
                     $this->setStocksAndCredits($orderid, 1);
                     if (com('coupon')) {
+
                         com('coupon')->sendcouponsbytask($order['id']);
+
+
                         com('coupon')->backConsumeCoupon($order['id']);
                     }
                     if ($order['isparent'] == 1) {
@@ -230,7 +233,8 @@ class Order_EweiShopV2Model {
                     }
                     $this->afterPayResult($order, $ispeerpay);
                 }
-            } else {
+            }
+            else {
                 $time          = time();
                 $change_data   = array();
                 $count_ordersn = $this->countOrdersn($ordersn_tid);
