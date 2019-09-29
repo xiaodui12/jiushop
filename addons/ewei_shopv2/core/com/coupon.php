@@ -1244,9 +1244,9 @@ class Coupon_EweiShopV2ComModel extends ComModel
 		 * 购指定商品，指定商品分类送优惠券
 		 * 修改人 lin
 		 * 修改内容（原只有根据商品id得到优惠券，现根据后台设置，可以根据不同商品，和分类进行得到可发送）
+		 * 修改时间 20190929
 		*/
 		if ($pdata['isopengoodssendtask'] == 1) {
-
 
 
             $sql="select  og.id,og.goodsid,og.orderid,og.parentorderid,og.total,gst.id as taskid,gst.couponid,gst.sendnum,gst.sendpoint,gst.num

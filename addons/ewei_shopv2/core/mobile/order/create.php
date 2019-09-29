@@ -59,6 +59,10 @@ class Create_EweiShopV2Page extends MobileLoginPage
 	{
 		global $_W;
 		global $_GPC;
+        $openid=$_W["openid"];
+
+
+
 		$trade = m('common')->getSysset('trade');
 		$shop = m('common')->getSysset('shop');
 		$area_set = m('util')->get_area_config_set();
@@ -1413,6 +1417,17 @@ class Create_EweiShopV2Page extends MobileLoginPage
 			}
 			$goods_list[0]['goods'] = $goods;
 		}
+
+
+
+        $can_buy=m("order")->check_buy($openid,$goods_list);
+
+        if(!$can_buy){
+            $starus=0;
+            $message="您等级尚不能购买此商品，请提升等级！";
+            include $this->template("order/message");
+            exit;
+        }
 		$_W['shopshare']['hideMenus'] = array('menuItem:share:qq', 'menuItem:share:QZone', 'menuItem:share:email', 'menuItem:copyUrl', 'menuItem:openWithSafari', 'menuItem:openWithQQBrowser', 'menuItem:share:timeline', 'menuItem:share:appMessage');
 		if (p('exchange')) 
 		{

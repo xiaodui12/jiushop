@@ -55,7 +55,7 @@
                 </label>
 
                 <label class='radio-inline'>
-                    <input type='radio' name='buygoods' value='1' onclick="chose(2)"  <?php  if($level['buygoods']==2) { ?>checked<?php  } ?> /> 购买指定商品
+                    <input type='radio' name='buygoods' value='2' onclick="chose(2)"  <?php  if($level['buygoods']==2) { ?>checked<?php  } ?> /> 购买指定分类商品
                 </label>
                 <?php  } else { ?>
                 <div class='form-control-static'><?php  if(empty($item['enabled'])) { ?>隐藏<?php  } else { ?>显示<?php  } ?></div>
@@ -64,7 +64,7 @@
         </div>
             <div class="form-group" >
                 <label class="col-lg control-label"></label>
-                <div class="col-sm-9 col-xs-12" id="typeone" <?php  if($level['buygoods']=='1') { ?>style="display:none"<?php  } ?> >
+                <div class="col-sm-9 col-xs-12" id="typeone" <?php  if($level['buygoods']=='1'||$level['buygoods']=='2') { ?>style="display:none"<?php  } ?> >
                     <?php if( ce('member.level' ,$level) ) { ?>
                         <div class='input-group fixsingle-input-group'>
                             <?php  if(empty($set['shop']['leveltype'])) { ?>
@@ -125,7 +125,7 @@
         <?php $condition_cates=empty($level['condition_cates'])?[]: explode(",", $level['condition_cates']);?>
         <select id="cates"  name='condition_cates[]' class="form-control select2" style='width:605px;' multiple='' data-placeholder="请选择分类" >
             <?php  if(is_array($category)) { foreach($category as $c) { ?>
-            <option value="<?php  echo $c['id'];?>" <?php  if(is_array($cates) &&  in_array($c['id'],$condition_cates)) { ?>selected<?php  } ?>><?php  echo $c['name'];?></option>
+            <option value="<?php  echo $c['id'];?>" <?php  if(is_array($condition_cates) &&  in_array($c['id'],$condition_cates)) { ?>selected<?php  } ?>><?php  echo $c['name'];?></option>
             <?php  } } ?>
         </select>
         <label class="control-label">

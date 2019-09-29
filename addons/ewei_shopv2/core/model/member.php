@@ -569,6 +569,75 @@ class Member_EweiShopV2Model
 		return $data;
 	}
 
+
+	/**
+	 * 购买指定商品分类
+	 * lin
+	*/
+	public function getCateLevel($openid,$oldlevel)
+	{
+        global $_W;
+        $uniacid = $_W['uniacid'];
+
+
+
+
+		$sel_level="select * from ims_ewei_shop_member_level  as this_level where buygoods=2 and enabled=1 and uniacid=:uniacid and level>:level order by level desc ";
+        $level_list=pdo_fetchall($sel_level,[":uniacid"=>$uniacid,":level"=>$oldlevel["level"]]);
+
+
+        if(empty($level_list)){
+        	return "";
+		}
+
+		$sql="select g.id,count(g.cates) as count_id,g.cates from ims_ewei_shop_order_goods og left join ims_ewei_shop_goods g on og.goodsid=g.id 
+LEFT JOIN ims_ewei_shop_order o on o.id=og.orderid
+    where o.`status` in (1,2,3) and o.openid=:openid and o.uniacid=:uniacid
+    GROUP BY g.cates";
+        $goods_list=pdo_fetchall($sql,[":openid"=>$openid,":uniacid"=>$uniacid]);
+        $cate=array();
+        foreach ($goods_list as $key=>$value){
+        	if(!empty($value)){
+                $goods_cates=explode(",", $value["cates"]);
+                foreach($goods_cates as $cat_key=>$cate_value){
+                	if(!empty($cate_value)){
+                        $cate[$cate_value]=empty($cate[$cate_value])?$value["count_id"]:$cate[$cate_value]+$value["count_id"];
+					}
+				}
+			}
+		}
+
+
+
+		$level="";
+		foreach ($level_list as $key=>$value)
+		{
+			$all_count=0;
+            $condition=explode(",",$value["condition_cates"]);
+            foreach ($condition as $condition_key=>$condition_val ){
+            	if(!empty($cate[$condition_val]))
+            	{
+                    $all_count+=$cate[$condition_val];
+				}
+			}
+			if($all_count>=$value["condition_cates_number"]){
+                $level=$value;
+                break;
+			}
+		}
+
+
+		return $level;
+
+
+
+
+
+
+	}
+
+
+
 	/**
      * 会员升级
      *
@@ -605,18 +674,27 @@ class Member_EweiShopV2Model
 				$level = pdo_fetch('select * from ' . tablename('ewei_shop_member_level') . (' where uniacid=:uniacid and enabled=1 and ' . $ordercount . ' >= ordercount and ordercount>0  order by level desc limit 1'), array(':uniacid' => $_W['uniacid']));
 			}
 		}
-
+        $oldlevel = $this->getLevel($openid);
 		if (!empty($orderid)) {
 			$goods_level = $this->getGoodsLevel($openid, $orderid);
 
-			if (empty($level)) {
+			$cate_level=$this->getCateLevel($openid,$oldlevel);
+
+			if (empty($level)&&empty($cate_level)) {
 				$level = $goods_level;
+			}elseif (empty($level)&&empty($goods_level)){
+                $level = $cate_level;
 			}
 			else {
 				if (!empty($goods_level)) {
 					if ($level['level'] < $goods_level['level']) {
 						$level = $goods_level;
 					}
+				}
+				if(!empty($cate_level)){
+                    if ($level['level'] < $cate_level['level']) {
+                        $level = $cate_level;
+                    }
 				}
 			}
 		}
@@ -629,8 +707,9 @@ class Member_EweiShopV2Model
 			return NULL;
 		}
 
-		$oldlevel = $this->getLevel($openid);
+
 		$canupgrade = false;
+
 
 		if (empty($oldlevel['id'])) {
 			$canupgrade = true;

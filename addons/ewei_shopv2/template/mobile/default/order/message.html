@@ -1,0 +1,76 @@
+{template '_header'}
+
+{if !is_h5app()}
+<style>
+    .fui-header .title {
+        background: #fff;
+    }
+
+</style>
+{/if}
+<style>
+    .message_div{
+        width: 80%;
+
+        position: fixed;
+        top: 40%;
+        left: 10%;
+        background: #ffffff;
+        box-shadow: #666666;
+        border-radius: 10px;
+        overflow: hidden;
+    }
+    .message_div_title{
+        background: -webkit-linear-gradient(#ffffff, #eeeeee); /* Safari 5.1 - 6.0 */
+        background: -o-linear-gradient(#ffffff, #eeeeee); /* Opera 11.1 - 12.0 */
+        background: -moz-linear-gradient(#ffffff, #eeeeee); /* Firefox 3.6 - 15 */
+        background: linear-gradient(#ffffff, #eeeeee); /* 标准的语法 */
+        width: 100%;
+        height: 2em;
+        font-size: 0.8rem;
+        color: #333333;
+       line-height: 2em;
+       text-align: center;
+
+    }
+    .message_div_body{
+        width: 95%;
+        margin: auto;
+        padding: 20px 0;
+        color: #555555;
+        min-height: 50px;
+    }
+    .message_div_button{
+
+        width: 100%;
+        height: 2em;
+        font-size: 0.8rem;
+
+    }
+    .message_div_button button{
+        width: 100%;
+        height: 100%;
+        border: none;
+    }
+
+</style>
+
+
+<link rel="stylesheet" type="text/css" href="../addons/ewei_shopv2/template/mobile/default/static/css/orderdetail.css?v=2.0.0">
+
+
+<div class="message_div">
+    <div class="message_div_title"> 错误提示</div>
+    <div class="message_div_body">{$message}</div>
+    <div class="message_div_button">
+        <button onclick="history.go(-1)">返回</button>
+    </div>
+
+</div>
+
+
+
+<script type="text/javascript">
+
+</script>
+{template '_footer'}

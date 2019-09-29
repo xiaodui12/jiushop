@@ -24,9 +24,12 @@ class Index_EweiShopV2Page extends MobileLoginPage
 	{
 		global $_W;
 		global $_GPC;
+        $openid=$_W['openid'];
 		$trade = m('common')->getSysset('trade');
 		$merchdata = $this->merchData();
 		extract($merchdata);
+
+
 
 		if ($is_openmerch == 1) {
 			include $this->template('merch/order/index');

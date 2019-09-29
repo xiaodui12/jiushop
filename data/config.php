@@ -3,15 +3,20 @@ defined('IN_IA') or exit('Access Denied');
 
 $config = array();
 
-//$config['db']['master']['host'] = '127.0.0.1';
-$config['db']['master']['host'] = '118.25.8.210';
-$config['db']['master']['username'] = 'jiushop';
-$config['db']['master']['password'] = 'pPYxnRJw4KHKcGnW';
-//$config['db']['master']['username'] = 'root';
-//$config['db']['master']['password'] = 'root';
+
+//$config['db']['master']['host'] = '211.149.139.50';
+//$config['db']['master']['username'] = 'weizan';
+//$config['db']['master']['password'] = 'pRSMTb7yYexbpWiK';
+
+$config['db']['master']['host'] = '127.0.0.1';
+
+$config['db']['master']['username'] = 'root';
+$config['db']['master']['password'] = 'root';
+
+
 $config['db']['master']['port'] = '3306';
-$config['db']['master']['database'] = 'jiushop';
-//$config['db']['master']['database'] = 'weizan';
+
+$config['db']['master']['database'] = 'weizan';
 $config['db']['master']['charset'] = 'utf8';
 $config['db']['master']['pconnect'] = 0;
 $config['db']['master']['tablepre'] = 'ims_';
