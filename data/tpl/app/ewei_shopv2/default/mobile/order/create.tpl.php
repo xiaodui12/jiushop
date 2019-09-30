@@ -1000,7 +1000,8 @@
         modal.initPost({new_area: <?php  echo $new_area?>, address_street: <?php  echo $address_street?>});
     });
 
-    require(['biz/order/create_new'], function (modal) {
+    // biz/order/create_new
+    require(['biz/order/create'], function (modal) {
 
         var params=<?php echo empty($invoice_arr)?'false':$invoice_arr?>||{};
 

@@ -2361,23 +2361,33 @@ class Order_EweiShopV2Model {
      * 判断用户是否可以购买
     */
     public function check_buy($openid,$goodslist){
+
         $oldlevel = m("member")->getLevel($openid);
+        $oldlevel["id"]=empty($oldlevel["id"])?0:$oldlevel["id"];
+
+
         $can_buy=true;
 
-        if($oldlevel["discount_type"]==1){
+        if($oldlevel["discount_type"]==1||empty($oldlevel["level"])){
             $discount_type_cate=array_filter(explode(",",$oldlevel["discount_type_cate"]));
 
-            if($oldlevel["discount_type"]==1){
+
                 foreach ($goodslist as $store_one){
                     foreach ($store_one["goods"] as  $goods_one){
                         $goods_cates= array_filter(explode(",",$goods_one["cates"]));
-                        if(count(array_intersect($discount_type_cate,$goods_cates))<=0){
-                            $can_buy=false;
+
+
+                        $buylevels=explode(",",$goods_one["buylevels"]);
+
+                        if($oldlevel["id"]==0){
+                            $can_buy=$goods_one["buylevels"]===""?false:in_array($oldlevel["id"],$buylevels);
+
+                        }else{
+                            $can_buy=!count(array_intersect($discount_type_cate,$goods_cates))<=0;
                         }
                     }
-
                 }
-            }
+
         }
 
         return $can_buy;
