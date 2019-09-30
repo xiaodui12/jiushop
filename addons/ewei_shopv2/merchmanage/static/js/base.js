@@ -182,7 +182,7 @@ define(['core', 'tpl'], function (core, tpl) {
         })
         $("#btn-logout").unbind('click').click(function () {
             if (modal.stop) {
-                console.log(1);
+
                 return 
             }
             FoxUI.confirm("当前已登录，确认要退出吗？", function () {

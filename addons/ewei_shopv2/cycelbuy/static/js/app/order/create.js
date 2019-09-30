@@ -567,7 +567,7 @@ define(['core', 'tpl', 'biz/plugin/diyform', 'biz/order/invoice'], function (cor
                 $('.isdiscount').hide()
             }
             return modal.totalPrice(0)
-        }
+        }console.log(4);
         core.json('order/create/getcouponprice', {
             goods: modal.params.coupon_goods,
             goodsprice: goodsprice,

@@ -18,6 +18,7 @@ define(['core', 'tpl', 'biz/plugin/diyform'], function (core, tpl, diyform) {
     modal.init = function (params) {
         modal.params = $.extend(modal.params, params || {});
         modal.params.couponid = 0;
+
         $('#coupondiv').find('.fui-cell-label').html('优惠券');
         $('#coupondiv').find('.fui-cell-info').html('');
         var discountprice = core.getNumber($(".discountprice").val());
@@ -391,7 +392,7 @@ define(['core', 'tpl', 'biz/plugin/diyform'], function (core, tpl, diyform) {
                 $('.isdiscount').hide()
             }
             return modal.totalPrice(0)
-        }
+        }console.log(5)
         core.json('order/create/getcouponprice', {
             goods: modal.params.coupon_goods,
             goodsprice: goodsprice,

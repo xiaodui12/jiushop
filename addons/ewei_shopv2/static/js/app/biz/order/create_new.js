@@ -13,11 +13,13 @@ define(['core', 'tpl', 'biz/plugin/diyform'], function (core, tpl, diyform) {
             isnodispatch: 0,
             nodispatch: '',
             packageid:0
+
         }
     };
     modal.init = function (params) {
         modal.params = $.extend(modal.params, params || {});
-        modal.params.couponid = 0;
+
+
         $('#coupondiv').find('.fui-cell-label').html('优惠券');
         $('#coupondiv').find('.fui-cell-info').html('');
         var discountprice = core.getNumber($(".discountprice").val());
@@ -157,6 +159,11 @@ define(['core', 'tpl', 'biz/plugin/diyform'], function (core, tpl, diyform) {
                 })
             });
         });
+
+        if(modal.params.couponid!=0){
+
+            modal.calcCouponPrice();
+        }
     };
     /*赠品*/
     modal.giftPicker = function (){
@@ -188,13 +195,17 @@ define(['core', 'tpl', 'biz/plugin/diyform'], function (core, tpl, diyform) {
                                 modal.params.couponmerchid = 0;
                                 $('#coupondiv').find('.fui-cell-label').html('优惠券');
                                 $('#coupondiv').find('.fui-cell-info').html('');
-                                modal.calcCouponPrice()
+                                modal.calcCouponPrice();
+                                $("#is_entrust_sale").hide();
                             },
                             onSelected: function (data) {
-                                modal.params.couponid = data.id;
+                                modal.params.couponid = data.couponid;
+                                console.log(modal.params.couponid);
+                                console.log(data);
+
                                 modal.params.couponmerchid = data.merchid;
                                 $('#coupondiv').find('.fui-cell-label').html('已选择');
-                                $('#coupondiv').find('.fui-cell-info').html(data.couponname);
+
                                 $('#coupondiv').data(data);
                                 modal.calcCouponPrice()
                             }
@@ -391,23 +402,27 @@ define(['core', 'tpl', 'biz/plugin/diyform'], function (core, tpl, diyform) {
                 $('.isdiscount').hide()
             }
             return modal.totalPrice(0)
-        }console.log(3);
+        }
         core.json('order/create/getcouponprice', {
             goods: modal.params.coupon_goods,
             goodsprice: goodsprice,
             couponid: modal.params.couponid,
             discountprice: discountprice,
-            isdiscountprice: isdiscountprice
+            isdiscountprice: isdiscountprice,
+            contype:2
         }, function (getjson) {
             if (getjson.status == 1) {
+                $('#coupondiv').find('.fui-cell-info').html(getjson.result.coupondeduct_text);
                 $('#coupondeduct_text').html(getjson.result.coupondeduct_text);
                 deductprice = getjson.result.deductprice;
                 var discountpricenew = getjson.result.discountprice;
                 var isdiscountpricenew = getjson.result.isdiscountprice;
+                $("#is_entrust_sale").show();
                 if (discountpricenew > 0) {
                     $(".showdiscountprice").html(discountpricenew);
                     $('.discount').show()
-                } else {
+                }
+                else {
                     $(".showdiscountprice").html(0);
                     $('.discount').hide()
                 }
@@ -422,7 +437,8 @@ define(['core', 'tpl', 'biz/plugin/diyform'], function (core, tpl, diyform) {
                     $('#coupondeduct_div').show();
                     $('#coupondeduct_money').html(core.number_format(deductprice, 2))
                 }
-            } else {
+            }
+            else {
                 if (discountprice > 0) {
                     $(".showdiscountprice").html($(".discountprice").val());
                     $('.discount').show()
@@ -520,6 +536,7 @@ define(['core', 'tpl', 'biz/plugin/diyform'], function (core, tpl, diyform) {
             'deduct': ($("#deductcredit").length > 0 && $("#deductcredit").prop('checked')) ? 1 : 0,
             'deduct2': ($("#deductcredit2").length > 0 && $("#deductcredit2").prop('checked')) ? 1 : 0,
             'couponid': modal.params.couponid,
+            'contype':2,
             'invoicename': $('#invoicename').val(),
             'submit': true,
             'token': token,
@@ -538,7 +555,7 @@ define(['core', 'tpl', 'biz/plugin/diyform'], function (core, tpl, diyform) {
                 FoxUI.alert(ret.result.message);
                 return;
             }
-             location.href =  core.getUrl('pc.order/pay',{id: ret.result.orderid});
+            location.href =  core.getUrl('order/pay',{id: ret.result.orderid});
         }, false, true)
     };
     return modal

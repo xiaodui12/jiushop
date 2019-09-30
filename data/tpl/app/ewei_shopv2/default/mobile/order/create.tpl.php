@@ -252,6 +252,8 @@
         <div class="title">确认订单</div>
         <div class="fui-header-right" data-nomenu="true">&nbsp;</div>
     </div>
+
+
     <div class='fui-content  navbar'>
 
         <?php  if(count($carrier_list)>0 && !$isverify && !$isvirtual&&!$isonlyverifygoods) { ?>
@@ -380,6 +382,15 @@
             <div class="fui-cell-remark"></div>
         </div>
     </a>
+    <div class="fui-cell-group"  id='is_entrust_sale' style='display:none'>
+
+        <div class="fui-cell fui-cell-click" >
+            <div class='fui-cell-label' style='width:auto;'>
+                <input type="radio"  value="1" checked data-checked="true">&nbsp;委托售卖
+            </div>
+        </div>
+
+    </div>
     <div class="fui-list-group" >
         <?php  $i=0?>
 
@@ -549,11 +560,13 @@
 </div>
 
 <?php  if(empty($exchangeOrder) && empty($taskgoodsprice) && empty($packageid) && empty($if_bargain['bargain'])) { ?>
+
+<input type="hidden" id="default_coupon" value="<?php echo empty($default_coupon[0])?0:$default_coupon[0]['id']?>">
 <div class="fui-cell-group">
 
     <div id='coupondiv' class="fui-cell fui-cell-click" <?php  if($couponcount<=0) { ?>style='display:none'<?php  } ?>>
     <div class='fui-cell-label' style='width:auto;'>优惠券</div>
-    <div class='fui-cell-info'></div>
+    <div class='fui-cell-info'>  </div>
     <div class='fui-cell-remark'>
         <img id="couponloading" src="../addons/ewei_shopv2/static/images/loading.gif" style="vertical-align: middle;display: none;" width="20" alt=""/>
         <div class='badge badge-danger' <?php  if($couponcount<=0) { ?>style='display:none'<?php  } ?>><?php  echo $couponcount;?></div>
@@ -946,7 +959,6 @@
         }, false);
     };
 
-
     var clientHeight = document.documentElement.clientHeight || document.body.clientHeight;
     $(window).on('resize', function () {
         var nowClientHeight = document.documentElement.clientHeight || document.body.clientHeight;
@@ -988,8 +1000,14 @@
         modal.initPost({new_area: <?php  echo $new_area?>, address_street: <?php  echo $address_street?>});
     });
 
-    require(['biz/order/create'], function (modal) {
-        modal.init(<?php  echo json_encode($createInfo)?>,<?php echo empty($invoice_arr)?'false':$invoice_arr?>||{});
+    require(['biz/order/create_new'], function (modal) {
+
+        var params=<?php echo empty($invoice_arr)?'false':$invoice_arr?>||{};
+
+        modal.init(<?php  echo json_encode($createInfo)?>,params);
+
+
+
 
 
         <?php  if(!$followed && !empty($share['followqrcode'])&& empty($trade['shop_strengthen'])) { ?>
