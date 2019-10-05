@@ -551,10 +551,10 @@
 <div class="fui-cell-group">
     <div class="fui-cell fui-cell-textarea">
         <div class="fui-cell-label" style="margin:.15rem 0 0 0">
-            买家留言
+            订单备注
         </div>
         <div class="fui-cell-info c000">
-            <textarea rows="2" placeholder="50字以内（选填）" id='remark'></textarea>
+            <textarea rows="3" value="如果您在使用折扣券购买商品，我们默认委托平台寄售，如需发货在此备注" placeholder="50字以内（选填）" id='remark'>如果您在使用折扣券购买商品，我们默认委托平台寄售，如需发货在此备注</textarea>
         </div>
     </div>
 </div>

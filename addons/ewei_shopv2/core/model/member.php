@@ -592,7 +592,7 @@ class Member_EweiShopV2Model
 
 		$sql="select g.id,count(g.cates) as count_id,g.cates from ims_ewei_shop_order_goods og left join ims_ewei_shop_goods g on og.goodsid=g.id 
 LEFT JOIN ims_ewei_shop_order o on o.id=og.orderid
-    where o.`status` in (1,2,3) and o.openid=:openid and o.uniacid=:uniacid
+    where o.`status` in (1,2,3) and o.openid=:openid and o.uniacid=:uniacid 
     GROUP BY g.cates";
         $goods_list=pdo_fetchall($sql,[":openid"=>$openid,":uniacid"=>$uniacid]);
         $cate=array();
@@ -679,6 +679,8 @@ LEFT JOIN ims_ewei_shop_order o on o.id=og.orderid
 			$goods_level = $this->getGoodsLevel($openid, $orderid);
 
 			$cate_level=$this->getCateLevel($openid,$oldlevel);
+
+
 
 			if (empty($level)&&empty($cate_level)) {
 				$level = $goods_level;

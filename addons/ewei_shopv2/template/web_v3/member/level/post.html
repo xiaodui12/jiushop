@@ -182,7 +182,7 @@
                 <?php $discount_type_cate=empty($level['discount_type_cate'])?[]: explode(",", $level['discount_type_cate']);?>
                 <select id="discount_type"  name='discount_type_cate[]' class="form-control select2" style='width:605px;' multiple='' data-placeholder="请选择分类" >
                     {loop $category $c}
-                    <option value="{$c['id']}" {if is_array($cates) &&  in_array($c['id'],$discount_type_cate)}selected{/if}>{$c['name']}</option>
+                    <option value="{$c['id']}" {if is_array($discount_type_cate) &&  in_array($c['id'],$discount_type_cate)}selected{/if}>{$c['name']}</option>
                     {/loop}
                 </select>
             </div>

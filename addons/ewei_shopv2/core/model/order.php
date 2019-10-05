@@ -172,6 +172,7 @@ class Order_EweiShopV2Model {
                 }
                 return true;
             }
+
             if ($order['istrade'] == 0) {
                 if ($order['status'] == 0) {
                     if (!empty($order['virtual']) && com('virtual')) {
@@ -179,6 +180,11 @@ class Order_EweiShopV2Model {
                     }
                     if ($order['isvirtualsend']) {
                         return $this->payVirtualSend($order['id'], $ispeerpay);
+                    }
+
+
+                    if(!empty($order["couponid"])){
+                        return $this->payCouponSend($order['id'], $ispeerpay);
                     }
                     $isonlyverifygoods = $this->checkisonlyverifygoods($order['id']);
                     $time              = time();
@@ -373,6 +379,59 @@ class Order_EweiShopV2Model {
         $this->afterPayResult($order, $ispeerpay);
         return true;
     }
+
+    /**
+     * 优惠券购买自动发货
+     * @param int $orderid
+     * @return bool?
+//     */
+    public function payCouponSend($orderid = 0, $ispeerpay = false) {
+        global $_W;
+        global $_GPC;
+        $order       = pdo_fetch('select id,uniacid,ordersn, price,openid,dispatchtype,addressid,carrier,status,isverify,deductcredit2,`virtual`,isvirtual,couponid,isvirtualsend,isparent,paytype,merchid,agentid,createtime,buyagainprice,istrade,tradestatus,iscycelbuy from ' . tablename('ewei_shop_order') . ' where  id=:id and uniacid=:uniacid limit 1', array(
+            ':uniacid' => $_W['uniacid'],
+            ':id' => $orderid
+        ));
+        $order_goods = pdo_fetch('select g.virtualsend,g.virtualsendcontent from ' . tablename('ewei_shop_order_goods') . ' og ' . ' left join ' . tablename('ewei_shop_goods') . ' g on g.id=og.goodsid ' . ' where og.orderid=:orderid and og.uniacid=:uniacid limit 1', array(
+            ':uniacid' => $order['uniacid'],
+            ':orderid' => $orderid
+        ));
+        $time        = time();
+        pdo_update('ewei_shop_order', array(
+            'virtualsend_info' => $order_goods['virtualsendcontent'],
+            'status' => '3',
+            'paytime' => $time,
+            'sendtime' => $time,
+            'finishtime' => $time
+        ), array(
+            'id' => $orderid
+        ));
+        $this->fullback($order['id']);
+        $this->setStocksAndCredits($orderid, 1);
+        $this->setStocksAndCredits($orderid, 3);
+        m('member')->upgradeLevel($order['openid'], $order['id']);
+
+        $this->setGiveBalance($orderid, 1);
+//        if (com('coupon')) {
+//            com('coupon')->sendcouponsbytask($order['id']);
+//        }
+//        if (com('coupon') && !empty($order['couponid'])) {
+//            com('coupon')->backConsumeCoupon($order['id']);
+//        }
+        m('notice')->sendOrderMessage($orderid);
+        com_run('printer::sendOrderMessage', $orderid);
+//        if (p('commission')) {
+//            p('commission')->checkOrderPay($order['id']);
+//            p('commission')->checkOrderFinish($order['id']);
+//        }
+        $this->afterPayResult($order, $ispeerpay);
+        return true;
+    }
+
+
+
+
+
     public function afterPayResult($order, $ispeerpay = false) {
         if (p('task')) {
             if (0 < $order['deductcredit2']) {

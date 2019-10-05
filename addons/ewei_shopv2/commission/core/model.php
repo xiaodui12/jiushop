@@ -1775,12 +1775,16 @@ if (!class_exists('CommissionModel')) {
             if (empty($set['level'])) {
                 return NULL;
             }
-            $order = pdo_fetch('select id,isparent,parentid,openid,ordersn,goodsprice,agentid,paytime,uniacid from ' . tablename('ewei_shop_order') . ' where id=:id and status>=1 and uniacid=:uniacid limit 1', array(
+            $order = pdo_fetch('select couponid,couponprice, id,isparent,parentid,openid,ordersn,goodsprice,agentid,paytime,uniacid from ' . tablename('ewei_shop_order') . ' where id=:id and status>=1 and uniacid=:uniacid limit 1', array(
                 ':id' => $orderid,
                 ':uniacid' => $_W['uniacid']
             ));
             if (empty($order)) {
                 return NULL;
+            }
+            //使用优惠券返回失败
+            if(!empty($order["couponid"])&&$order["couponprice"]>0){
+                return null;
             }
             $openid = $order['openid'];
             $member = m('member')->getMember($openid);
@@ -2173,12 +2177,16 @@ if (!class_exists('CommissionModel')) {
             if (empty($orderid)) {
                 return NULL;
             }
-            $order = pdo_fetch('select id,openid, ordersn,goodsprice,agentid,finishtime from ' . tablename('ewei_shop_order') . ' where id=:id and status>=3 and uniacid=:uniacid limit 1', array(
+            $order = pdo_fetch('select  couponid,couponprice,id,openid, ordersn,goodsprice,agentid,finishtime from ' . tablename('ewei_shop_order') . ' where id=:id and status>=3 and uniacid=:uniacid limit 1', array(
                 ':id' => $orderid,
                 ':uniacid' => $_W['uniacid']
             ));
             if (empty($order)) {
                 return NULL;
+            }
+            //使用优惠券返回失败
+            if(!empty($order["couponid"])&&$order["couponprice"]>0){
+                return null;
             }
             $set = $this->getSet();
             if (empty($set['level'])) {
