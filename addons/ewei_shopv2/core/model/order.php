@@ -2451,6 +2451,9 @@ class Order_EweiShopV2Model {
 
         return $can_buy;
     }
+
+
+
 }
 if (!defined('IN_IA')) {
     exit('Access Denied');

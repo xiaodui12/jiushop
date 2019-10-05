@@ -219,6 +219,8 @@ class Plugin_EweiShopV2Model
 
 		$config_file = $moduleroot = IA_ROOT . '/addons/ewei_shopv2/plugin/' . $pluginname . '/config.php';
 
+
+
 		if (!is_file($config_file)) {
 			return false;
 		}

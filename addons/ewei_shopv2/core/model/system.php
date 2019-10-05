@@ -21,29 +21,43 @@ class System_EweiShopV2Model {
         $routes         = explode('.', $_W['routes']);
         $top            = empty($routes[0]) ? 'shop' : $routes[0];
         if ($this->merch) {
+
+
             $allmenus = $this->pluginMenu('merch', 'manage_menu');
         } else {
             if (!$_W['isplugin'] && $routes[0] == 'system') {
+
                 $allmenus = $this->systemMenu();
             } else {
+
                 $allmenus = $this->shopMenu();
             }
         }
+
+
+
+
         if ($routes[0] == 'system') {
             $top = $routes[1];
         }
+
         if (!empty($allmenus)) {
             $submenu = $allmenus[$top];
+
             if (empty($submenu)) {
                 $othermenu = $this->otherMenu();
                 if (!empty($othermenu[$top])) {
                     $submenu = $othermenu[$top];
                 }
             }
+
             if (empty($submenu) && p($top)) {
                 $submenu  = $this->pluginMenu($top);
                 $isplugin = true;
             }
+
+
+
             foreach ($allmenus as $key => $val) {
                 if (!empty($val['plugincom'])) {
                     if ($val['plugincom'] == 1) {
@@ -95,6 +109,9 @@ class System_EweiShopV2Model {
             }
             unset($key);
             unset($val);
+
+
+
             if (!empty($submenu)) {
                 if (!empty($submenu['plugincom'])) {
                     $return_submenu['subtitle'] = m('plugin')->getName($top);
@@ -113,7 +130,9 @@ class System_EweiShopV2Model {
                     }
                 }
                 if (!empty($submenu['items'])) {
+
                     foreach ($submenu['items'] as $i => $child) {
+
                         if (!empty($child['isplugin'])) {
                             if (!p($child['isplugin'])) {
                                 continue;
@@ -123,7 +142,8 @@ class System_EweiShopV2Model {
                                     continue;
                                 }
                             }
-                        } else {
+                        }
+                        else {
                             if (!empty($child['iscom'])) {
                                 if (!com($child['iscom'])) {
                                     continue;
@@ -141,6 +161,7 @@ class System_EweiShopV2Model {
                         if (!empty($child['top'])) {
                             $top = '';
                         }
+
                         if (empty($child['items'])) {
                             $return_submenu_default = $top . '';
                             $route_second           = $top;
@@ -199,15 +220,20 @@ class System_EweiShopV2Model {
                             if (!empty($return_menu_child['permmust']) && !$this->cv($return_menu_child['permmust'])) {
                                 continue;
                             }
+
                             if (!$this->cv($return_menu_child['route'])) {
                                 if (empty($return_menu_child['perm']) || !$this->cv($return_menu_child['perm'])) {
                                     continue;
                                 }
                             }
+
+
                             $return_submenu['items'][] = $return_menu_child;
                             unset($return_submenu_default);
                             unset($route_second);
-                        } else {
+                        }
+                        else {
+
                             $return_menu_child = array(
                                 'title' => $child['title'],
                                 'items' => array()
@@ -341,6 +367,9 @@ class System_EweiShopV2Model {
                 }
             }
         }
+
+
+
         return array(
             'menu' => $return_menu,
             'submenu' => $return_submenu,
@@ -1638,7 +1667,12 @@ class System_EweiShopV2Model {
         if (empty($plugin)) {
             return array();
         }
+
+
+
         $config = m('plugin')->getConfig($plugin);
+
+
         if ($plugin == 'creditshop') {
             if (0 < $_W['merchid']) {
                 unset($config[$key]['items'][5]['items'][1]);
@@ -1875,9 +1909,11 @@ class System_EweiShopV2Model {
         if ($str == 'plugins') {
             $str = $this->isOpenPlugin();
         }
+
         if ($this->merch) {
             return mcv($str);
         }
+
         return cv($str);
     }
     public function isOpenPlugin() {

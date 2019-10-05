@@ -17,6 +17,7 @@ class Perm_EweiShopV2ComModel extends ComModel {
                 "store" => $this->perm_store(),
                 "finance" => $this->perm_finance(),
                 "statistics" => $this->perm_statistics(),
+                "rebate" => $this->perm_rebate(),
                 "sysset" => $this->perm_sysset(),
                 "sale" => $this->perm_sale(),
                 "bargain" => $this->perm_bargain(),
@@ -1009,6 +1010,50 @@ class Perm_EweiShopV2ComModel extends ComModel {
             )
         );
     }
+
+    protected function perm_rebate(){
+        return array(
+            "text" => "数据统计",
+            "sale" => array(
+                "text" => "销售统计",
+                "main" => "查看",
+                "export" => "导出-log"
+            ),
+            "sale_analysis" => array(
+                "text" => "销售指标",
+                "main" => "查看"
+            ),
+            "order" => array(
+                "text" => "订单统计",
+                "main" => "查看",
+                "export" => "导出-log"
+            ),
+            "goods" => array(
+                "text" => "商品销售明细",
+                "main" => "查看",
+                "export" => "导出-log"
+            ),
+            "goods_rank" => array(
+                "text" => "商品销售排行",
+                "main" => "查看",
+                "export" => "导出-log"
+            ),
+            "goods_trans" => array(
+                "text" => "商品销售转化率",
+                "main" => "查看",
+                "export" => "导出-log"
+            ),
+            "member_cost" => array(
+                "text" => "会员消费排行",
+                "main" => "查看",
+                "export" => "导出-log"
+            ),
+            "member_increase" => array(
+                "text" => "会员增长趋势",
+                "main" => "查看"
+            )
+        );
+    }
     protected function perm_order() {
         return array(
             "text" => "订单",
@@ -1265,6 +1310,13 @@ class Perm_EweiShopV2ComModel extends ComModel {
                     "edit" => "修改-log",
                     "delete" => "删除-log"
                 )
+            ),
+            "rebate" => array(
+                "order" => array(
+                    "text" => "返利订单",
+                    "main" => "查看列表"
+                ),
+
             ),
             "apply" => array(
                 "text" => "佣金审核",
@@ -2828,6 +2880,7 @@ class Perm_EweiShopV2ComModel extends ComModel {
         return true;
     }
     public function check_perm($permtypes = "") {
+
         global $_W;
         $check = true;
         if (empty($permtypes)) {
@@ -2835,7 +2888,9 @@ class Perm_EweiShopV2ComModel extends ComModel {
         }
         if (!strexists($permtypes, "&") && !strexists($permtypes, "|")) {
             $check = $this->check($permtypes);
+
         } else {
+
             if (strexists($permtypes, "&")) {
                 $pts = explode("&", $permtypes);
                 foreach ($pts as $pt) {
@@ -2883,6 +2938,7 @@ class Perm_EweiShopV2ComModel extends ComModel {
             }
             return false;
         }
+
         if (empty($permtype)) {
             return false;
         }
@@ -2891,24 +2947,30 @@ class Perm_EweiShopV2ComModel extends ComModel {
             ":uniacid" => intval($_W["uniacid"])
         ));
         if (empty($user) || empty($user["userstatus"])) {
+
             return false;
         }
         if (!empty($user["roleid"]) && empty($user["rolestatus"])) {
+
             return false;
         }
+
         $role_perms = explode(",", $user["roleperms"]);
         $user_perms = explode(",", $user["userperms"]);
         $perms      = array_merge($role_perms, $user_perms);
         if (empty($perms)) {
+
             return false;
         }
         $is_xxx = $this->check_xxx($permtype);
         if ($is_xxx) {
             if (!in_array($is_xxx, $perms)) {
+
                 return false;
             }
         } else {
             if (!in_array($permtype, $perms)) {
+                echo 5;
                 return false;
             }
         }
@@ -3113,6 +3175,7 @@ class Perm_EweiShopV2ComModel extends ComModel {
             }
             self::$formatPerms = $array;
         }
+
         return self::$formatPerms;
     }
     protected function perm_sns() {

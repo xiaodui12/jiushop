@@ -17,6 +17,7 @@ return array(
 			array('title' => '增长趋势统计', 'route' => 'increase'),
 			array('title' => '分销商等级', 'route' => 'level'),
 			array('title' => '分销订单', 'route' => 'statistics.order'),
+            array('title' => '返利订单', 'route' => 'rebate.order'),
 			array('title' => '分销商统计', 'route' => 'statistics.agent'),
 			array(
 				'title' => '提现申请',

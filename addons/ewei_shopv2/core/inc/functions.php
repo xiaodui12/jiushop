@@ -183,6 +183,7 @@ if (!function_exists('com')) {
 	{
 		static $_coms = array();
 
+
 		if (isset($_coms[$name])) {
 			return $_coms[$name];
 		}
@@ -198,6 +199,10 @@ if (!function_exists('com')) {
 
 		$model = EWEI_SHOPV2_CORE . 'com/' . strtolower($name) . '.php';
 
+
+
+
+
 		if (!is_file($model)) {
 			return false;
 		}
@@ -205,11 +210,17 @@ if (!function_exists('com')) {
 		require_once EWEI_SHOPV2_CORE . 'inc/com_model.php';
 		require_once $model;
 		$class_name = ucfirst($name) . '_EweiShopV2ComModel';
+
+
 		$_coms[$name] = new $class_name($name);
 
+
 		if (com_perm_check_com($name)) {
+
+
 			return $_coms[$name];
 		}
+
 
 		$_coms[$name] = false;
 		return $_coms[$name];
@@ -514,8 +525,12 @@ if (!function_exists('check_operator_perm')) {
 if (!function_exists('com_run')) {
 	function com_run($name = '')
 	{
+
+
 		$names = explode('::', $name);
+
 		$com = com($names[0]);
+
 
 		if (!$com) {
 			return false;
@@ -526,6 +541,7 @@ if (!function_exists('com_run')) {
 		}
 
 		$func_args = func_get_args();
+
 		$args = array_splice($func_args, 1);
 		return call_user_func_array(array($com, $names[1]), $args);
 	}
@@ -975,6 +991,8 @@ if (!function_exists('ce')) {
 if (!function_exists('cv')) {
 	function cv($permtypes = '')
 	{
+
+
 		if (!com('perm')) {
 			$arr = explode('.', $permtypes);
 
@@ -987,7 +1005,9 @@ if (!function_exists('cv')) {
 			return true;
 		}
 
+
 		$perm = com_run('perm::check_perm', $permtypes);
+
 		return $perm;
 	}
 }
