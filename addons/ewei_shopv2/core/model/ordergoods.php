@@ -19,7 +19,6 @@ class Ordergoods_EweiShopV2Model
 				$credit1 += intval($goods['credit']) * $goods['total'];
 			}
 		}
-
 		return $credit1;
 	}
 

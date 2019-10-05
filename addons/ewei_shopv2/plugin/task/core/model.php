@@ -1628,12 +1628,14 @@ class TaskModel extends PluginModel
 			$openid = $_W['openid'];
 		}
 
+
 		if (empty($taskclass)) {
 			return false;
 		}
 
 		$sql = 'SELECT * FROM ' . tablename('ewei_shop_task_extension_join') . ' WHERE openid = :openid AND uniacid = :uniacid AND completetime = 0 AND endtime > ' . time();
 		$allTask = pdo_fetchall($sql, array(':openid' => $openid, ':uniacid' => $_W['uniacid']));
+
 
 		foreach ($allTask as $tk => $tv) {
 			$a = $this->checktaskstatus($tv);
@@ -1664,6 +1666,7 @@ class TaskModel extends PluginModel
 
 				$isreward = true;
 			}
+
 
 			if ($isreward) {
 				pdo_update('ewei_shop_task_extension_join', array('completetime' => time()), array('uniacid' => $_W['uniacid'], 'id' => $tv['id']));

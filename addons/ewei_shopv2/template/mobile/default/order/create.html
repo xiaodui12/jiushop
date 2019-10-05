@@ -990,7 +990,6 @@
                 $(".fui-navbar,.cart-list,.fui-footer,.fui-content.navbar").removeClass('iphonex');
                 return;
             }
-
             if(height==2436 && width==1125){
                 $(".fui-navbar,.cart-list,.fui-footer,.fui-content.navbar").addClass('iphonex')
             }

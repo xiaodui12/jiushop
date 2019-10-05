@@ -28,7 +28,7 @@ class Order_EweiShopV2Page extends WebPage
 		}
 
 		$sendtype = !isset($_GPC['sendtype']) ? 0 : $_GPC['sendtype'];
-		$condition = ' o.uniacid = :uniacid and o.ismr=0 and o.deleted=0 and o.isparent=0 and o.agentid>0';
+		$condition = ' o.uniacid = :uniacid and o.ismr=0 and o.deleted=0 and o.isparent=0';
 		$ccard_plugin = p('ccard');
 
 		if ($ccard_plugin) {
@@ -61,7 +61,8 @@ class Order_EweiShopV2Page extends WebPage
 				$condition .= ' AND o.paytype =' . intval($_GPC['paytype']);
 			}
 		}
-        $condition.=" AND o.couponid>0";
+
+
 
 		if (!empty($_GPC['searchfield']) && !empty($_GPC['keyword'])) {
 			$searchfield = trim(strtolower($_GPC['searchfield']));
@@ -107,6 +108,7 @@ class Order_EweiShopV2Page extends WebPage
 			}
 		}
 
+
 		$statuscondition = '';
 
 		if ($status !== '') {
@@ -129,6 +131,7 @@ class Order_EweiShopV2Page extends WebPage
 				$statuscondition = ' AND o.status = ' . intval($status);
 			}
 		}
+        $statuscondition.=" AND o.couponid>0";
 
 		$agentid = intval($_GPC['agentid']);
 		$agentid = 0;
@@ -140,53 +143,7 @@ class Order_EweiShopV2Page extends WebPage
 			$level = intval($cset['level']);
 		}
 
-		$olevel = intval($_GPC['olevel']);
-		if (!empty($agentid) && 0 < $level) {
-			$agent = $p->getInfo($agentid, array());
 
-			if (!empty($agent)) {
-				$agentLevel = $p->getLevel($agentid);
-			}
-
-			if (empty($olevel)) {
-				if (1 <= $level) {
-					$condition .= ' and  ( o.agentid=' . intval($_GPC['agentid']);
-				}
-
-				if (2 <= $level && 0 < $agent['level2']) {
-					$condition .= ' or o.agentid in( ' . implode(',', array_keys($agent['level1_agentids'])) . ')';
-				}
-
-				if (3 <= $level && 0 < $agent['level3']) {
-					$condition .= ' or o.agentid in( ' . implode(',', array_keys($agent['level2_agentids'])) . ')';
-				}
-
-				if (1 <= $level) {
-					$condition .= ')';
-				}
-			}
-			else if ($olevel == 1) {
-				$condition .= ' and  o.agentid=' . intval($_GPC['agentid']);
-			}
-			else if ($olevel == 2) {
-				if (0 < $agent['level2']) {
-					$condition .= ' and o.agentid in( ' . implode(',', array_keys($agent['level1_agentids'])) . ')';
-				}
-				else {
-					$condition .= ' and o.agentid in( 0 )';
-				}
-			}
-			else {
-				if ($olevel == 3) {
-					if (0 < $agent['level3']) {
-						$condition .= ' and o.agentid in( ' . implode(',', array_keys($agent['level2_agentids'])) . ')';
-					}
-					else {
-						$condition .= ' and o.agentid in( 0 )';
-					}
-				}
-			}
-		}
 
 		$authorid = intval($_GPC['authorid']);
 		$author = p('author');
@@ -195,12 +152,16 @@ class Order_EweiShopV2Page extends WebPage
 			$paras[':authorid'] = $authorid;
 		}
 
-		if ($condition != ' o.uniacid = :uniacid and o.ismr=0 and o.deleted=0 and o.isparent=0 and o.agentid>0' || !empty($sqlcondition)) {
+		if ($condition != ' o.uniacid = :uniacid and o.ismr=0 and o.deleted=0 and o.isparent=0' || !empty($sqlcondition)) {
 			$sql = 'select o.*  from ' . tablename('ewei_shop_order') . ' o' . (' ' . $sqlcondition . ' where ' . $condition . ' ' . $statuscondition . ' GROUP BY o.id ORDER BY o.createtime DESC  ');
+
+
 
 			if (empty($_GPC['export'])) {
 				$sql .= 'LIMIT ' . ($pindex - 1) * $psize . ',' . $psize;
 			}
+
+
 
 			$list = pdo_fetchall($sql, $paras);
 
@@ -255,7 +216,7 @@ class Order_EweiShopV2Page extends WebPage
 		}
 		else {
 			$status_condition = str_replace('o.', '', $statuscondition);
-			$sql = 'select * from ' . tablename('ewei_shop_order') . (' where uniacid = :uniacid and ismr=0 and deleted=0 and isparent=0 and agentid > 0 ' . $status_condition . ' GROUP BY id ORDER BY createtime DESC  ');
+			$sql = 'select * from ' . tablename('ewei_shop_order') . (' where uniacid = :uniacid and ismr=0 and deleted=0 and isparent=0 ' . $status_condition . ' GROUP BY id ORDER BY createtime DESC  ');
 
 			if (empty($_GPC['export'])) {
 				$sql .= 'LIMIT ' . ($pindex - 1) * $psize . ',' . $psize;

@@ -20,6 +20,7 @@ class Order_EweiShopV2Page extends CommissionMobileLoginPage
 	{
 		global $_W;
 		global $_GPC;
+
 		$member = $this->model->getInfo($_W['openid'], array('total', 'ordercount0'));
 		include $this->template();
 	}
@@ -45,9 +46,14 @@ class Order_EweiShopV2Page extends CommissionMobileLoginPage
 		$level3 = $member['level3'];
 		$ordercount = $member['ordercount0'];
 
+
 		if (1 <= $level) {
-			$level1_memberids = pdo_fetchall('select id from ' . tablename('ewei_shop_member') . ' where uniacid=:uniacid and agentid=:agentid', array(':uniacid' => $_W['uniacid'], ':agentid' => $member['id']), 'id');
-			$level1_orders = pdo_fetchall('select commission1,o.id,o.createtime,o.price,og.commissions from ' . tablename('ewei_shop_order_goods') . ' og ' . ' left join  ' . tablename('ewei_shop_order') . ' o on og.orderid=o.id ' . (' where o.uniacid=:uniacid and o.agentid=:agentid ' . $condition . ' and og.status1>=0 and og.nocommission=0'), array(':uniacid' => $_W['uniacid'], ':agentid' => $member['id']));
+			$where_agent=" ( o.agentid=:agentid or (o.openid=:openid and o.couponid>0)) ";
+			$level1_memberids = pdo_fetchall('select id from ' . tablename('ewei_shop_member') . ' where uniacid=:uniacid and agentid=:agentid ',
+				array(':uniacid' => $_W['uniacid'], ':agentid' => $member['id']), 'id');
+			$level1_orders = pdo_fetchall('select commission1,o.id,o.createtime,o.price,og.commissions from ' . tablename('ewei_shop_order_goods') . ' og ' .
+				' left join  ' . tablename('ewei_shop_order') . ' o on og.orderid=o.id ' . (' where o.uniacid=:uniacid and '.$where_agent . $condition .
+					' and og.status1>=0 and og.nocommission=0'), array(':uniacid' => $_W['uniacid'], ':agentid' => $member['id'],':openid' => $member['openid']));
 
 			foreach ($level1_orders as $o) {
 				if (empty($o['id'])) {
@@ -170,16 +176,12 @@ class Order_EweiShopV2Page extends CommissionMobileLoginPage
 		foreach ($orders1 as $o) {
 			$orderids[$o['id']] = $o;
 		}
-
 		$list = array();
-
 		if (!empty($orderids)) {
-			$list = pdo_fetchall('select id,ordersn,openid,createtime,status from ' . tablename('ewei_shop_order') . ('  where uniacid =' . $_W['uniacid'] . ' and id in ( ') . implode(',', array_keys($orderids)) . ') order by id desc');
-
+			$list = pdo_fetchall('select id,ordersn,openid,createtime,status,couponid,sell_status from ' . tablename('ewei_shop_order') . ('  where uniacid =' . $_W['uniacid'] . ' and id in ( ') . implode(',', array_keys($orderids)) . ') order by id desc');
 			foreach ($list as &$row) {
 				$row['commission'] = number_format((double) $orderids[$row['id']]['commission'], 2);
 				$row['createtime'] = date('Y-m-d H:i', $row['createtime']);
-
 				if ($row['status'] == 0) {
 					$row['statusstr'] = '待付款';
 				}
@@ -254,6 +256,9 @@ class Order_EweiShopV2Page extends CommissionMobileLoginPage
 
 				if (!empty($this->set['openorderbuyer'])) {
 					$row['buyer'] = m('member')->getMember($row['openid']);
+					if(empty($row['buyer']['avatar'])){
+                        $row['buyer']['avatar']="../addons/ewei_shopv2/static/images/noface.png";
+					}
 				}
 			}
 

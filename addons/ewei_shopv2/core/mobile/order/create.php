@@ -3956,6 +3956,7 @@ class Create_EweiShopV2Page extends MobileLoginPage
                 {
                     $order_goods['realprice'] = $order_goods['realprice'] - $order['couponprice'];
                 }
+
                 pdo_insert('ewei_shop_order_goods', $order_goods);
                 if ($goods['seckillinfo'] && ($goods['seckillinfo']['status'] == 0))
                 {

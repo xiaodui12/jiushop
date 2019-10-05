@@ -233,7 +233,6 @@ class Index_EweiShopV2Page extends PluginWebPage
 
 		$data = m('common')->getPluginset('commission');
 		$goods = false;
-
 		if (!empty($data['become_goodsid'])) {
 			$goods = pdo_fetch('select id,title,thumb from ' . tablename('ewei_shop_goods') . ' where id=:id and uniacid=:uniacid limit 1 ', array(':id' => $data['become_goodsid'], ':uniacid' => $_W['uniacid']));
 		}

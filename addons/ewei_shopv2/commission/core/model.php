@@ -2527,6 +2527,47 @@ if (!class_exists('CommissionModel')) {
                 }
             }
         }
+
+
+        /**
+         * 发放返利
+        */
+        public function orderFinishTaskBycoupon($order) {
+
+            global $_W;
+
+            if (!p('task')) {
+                return NULL;
+            }
+            if (empty($order['couponid'])) {
+                return NULL;
+            }
+            $order_id         = $order['id'];
+            $level_price_1    = $level_price_2 = $level_price_3 = 0;
+            $order_goods_list = pdo_fetchall('SELECT commissions FROM ' . tablename('ewei_shop_order_goods') . ' WHERE orderid = :order_id AND uniacid = :uniacid AND nocommission = 0', array(
+                ':order_id' => $order_id,
+                ':uniacid' => $_W['uniacid']
+            ));
+            if (empty($order_goods_list)) {
+                return NULL;
+            }
+            foreach ((array) $order_goods_list as $one_order_goods) {
+                $commissions = unserialize((string) $one_order_goods['commissions']);
+                if (!empty($commissions)) {
+                    $level_price_1 += round((double) $commissions['level1'], 2);
+                }
+            }
+            $openid1 = $order['openid'];
+
+            return ($openid1);
+//
+//            if (0 < $level_price_1) {
+//                p('task')->checkTaskReward('commission_money', $level_price_1, $openid1);
+//                p('task')->checkTaskProgress((int) $level_price_1, 'pyramid_money', 0, $openid1);
+//            }
+        }
+
+
         public function getShop($m) {
             global $_W;
             $member = m('member')->getMember($m);

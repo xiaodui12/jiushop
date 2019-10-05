@@ -52,3 +52,18 @@
 	</div>
 </div>
 </div>
+<div  id="rebatetime" >
+<div class="form-group" >
+	<label class="col-lg control-label">返现时长</label>
+	<div class="col-sm-9 col-xs-12">
+		<div class="input-group fixmore-input-group">
+
+			<input type="text" name="data[rebatetime]" class="form-control valid" value="<?php  echo $data['rebatetime'];?>" aria-invalid="false">
+
+			<div class="input-group-addon">天</div>
+
+		</div>
+
+	</div>
+</div>
+</div>

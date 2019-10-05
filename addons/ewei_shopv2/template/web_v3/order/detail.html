@@ -718,9 +718,28 @@
                 </div>
                 {/if}
             </div>
-            {if p('commission') && count($agents)>0}
+
+
+
+            {if p('commission') && count($agents)>0||$item["couponid"]>0}
+
             <div class="distribution col-sm-4 col-md-3">
                 <div class="row">
+
+
+
+
+                    {if $item["couponid"]>0 }
+                    <?php $commissions= iunserializer($item['goods'][0]["commissions"])?>
+                    <div>
+                        <label >返利</label>
+                        <ul>
+                            <li class="text"><span style="display:inline-block;width: 90px;">返利状态：</span><span class="text-default"><?php echo $item['sell_status']==1?"已返利":"未返利"?></span></li>
+                            <li class="text"><span style="display:inline-block;width: 90px;">返利金额：</span><span class='text-default'>{$commissions["level1"]}</span></li>
+                        </ul>
+                    </div>
+                    {/if}
+
                     {loop $agents $key $value}
                     {if !empty($value)}
                     <div class="">
@@ -830,6 +849,8 @@
                     </div>
                 {/if}
                 <!----分红结束-------->
+
+
 
                 </div>
             </div>
