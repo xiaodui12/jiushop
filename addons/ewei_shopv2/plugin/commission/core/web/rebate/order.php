@@ -672,6 +672,9 @@ class Order_EweiShopV2Page extends WebPage
 					$row['couponprice'] = '-' . $row['couponprice'];
 				}
 
+
+//				$row["sell_status"]=$row["sell_status"]==1?$row["sell_status"]:($row['finishtime']+)
+
 				$row['nickname'] = strexists($row['nickname'], '^') ? '\'' . $row['nickname'] : $row['nickname'];
 				$row['expresssn'] = $row['expresssn'] . ' ';
 				$row['createtime'] = date('Y-m-d H:i:s', $row['createtime']);
@@ -811,6 +814,11 @@ class Order_EweiShopV2Page extends WebPage
 		$stores = pdo_fetchall('select id,storename from ' . tablename('ewei_shop_store') . ' where uniacid=:uniacid ', array(':uniacid' => $uniacid));
 		$r_type = array('退款', '退货退款', '换货');
 		load()->func('tpl');
+        $data = m('common')->getPluginset('commission');
+
+
+        $rebate_time=time()-$data["settledays"]*60*60*24;
+
 		include $this->template();
 	}
 

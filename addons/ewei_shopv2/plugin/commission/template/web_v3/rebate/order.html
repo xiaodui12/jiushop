@@ -80,6 +80,9 @@
     </form>
 
 
+    <div>
+        <label><input type="checkbox" id="select_all_order"></label>   <a class="sell_status_button">立即返利</a>
+    </div>
     {if count($list)>0}
     <table class='table table-responsive' style='table-layout: fixed;'>
         <tr style='background:#f8f8f8'>
@@ -98,7 +101,17 @@
         <tr ><td colspan='9' style='height:20px;padding:0;border-top:none;'>&nbsp;</td></tr>
         <tr class='trorder'>
             <td colspan='4' >
-                <span style="font-weight: bold;">{php echo date('Y-m-d',$item['createtime'])} {php echo date('H:i:s',$item['createtime'])}</span>
+                <span style="font-weight: bold;">
+                    <label>
+                        <?php if($item["statusvalue"]=='3'&&$item['sell_status']==0&&$item['finishtime']>$rebate_time){
+                        ?>
+                        <input name="sell_status" value="{$item['id']}"    type="checkbox">
+                        <?php}else{?>
+                        <input  value="{$item['id']}" disabled   type="checkbox">
+                        <?php}?>
+
+                    </label>
+                    {php echo date('Y-m-d',$item['createtime'])} {php echo date('H:i:s',$item['createtime'])}</span>
                 订单编号:  {$item['ordersn']}
                 {if !empty($item['refundstate'])}<label class='label label-danger'>{$r_type[$item['rtype']]}申请</label>{/if}
                 {if !empty($item['refundstate']) && $item['rstatus'] == 4}<label class='label label-default'>客户退回物品</label>{/if}
@@ -130,7 +143,6 @@
                     {/if}
                 {/if}
 
-
                 {if $item['merchid'] == 0}
                 {ifp 'order.op.remarksaler'}
                 <a class='op'  data-toggle="ajaxModal" href="{php echo webUrl('order/op/remarksaler', array('id' => $item['id']))}"  >
@@ -144,7 +156,6 @@
                 </a>
                 {/if}
                 {/if}
-
                 <!--<a class='op'   href="{php echo webUrl('order', array('op' => 'detail', 'id' => $item['id']))}" >标记</a>-->
             </td>
         </tr>
@@ -312,21 +323,17 @@
                 {$item['m1']['realname']}<br/>{$item['m1']['mobile']}</td>
             </td>
 
-            <td   rowspan="{php echo count($item['goods'])}" class='ops' style='line-height:20px;text-align:center' ><span class='text-{$item['statuscss']}'>{$item['status']}</span><br />
+            <td   rowspan="{php echo count($item['goods'])}" class='ops' style='line-height:20px;text-align:center' ><span class='text-{$item['statuscss']}'>
+                {$item['status']}
+                <?php if($item["statusvalue"]=='3'&&($item['sell_status']==1||$item['finishtime']<$rebate_time)){?>
+                (已返利)
+                <?php}?>
+                </span><br />
             </td>
 
             {/if}
         </tr>
         {/loop}
-
-
-
-
-
-
-
-
-
 
 
 
@@ -371,3 +378,37 @@
     {/if}
 </div>
 {template '_footer'}
+<script type="text/javascript">
+    $(function () {
+        $("#select_all_order").change(function () {
+            var sell_status=$("#select_all_order:checked").length>0;
+            $("[name=sell_status]").prop("checked",sell_status);
+        })
+        $(".sell_status_button").click(function () {
+            var sell_status=$("[name=sell_status]:checked");
+            if(sell_status.length==0){
+                alert("请选择需要返利的订单");
+            }
+            id=[];
+            sell_status.each(function (i,index) {
+                id.push( sell_status.eq(i).val());
+
+            })
+            console.log(id);
+
+            $.ajax({
+                "url":"/web/index.php?c=site&a=entry&m=ewei_shopv2&do=web&r=commission.rebate.send",
+                "type":"post",
+                "dataType":"json",
+                "data":{
+                    "id":id
+                },
+                success:function (res) {
+                    if(res.status==1){
+                        location.reload();
+                    }
+                }
+            })
+        })
+    })
+</script>

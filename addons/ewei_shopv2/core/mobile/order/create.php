@@ -69,6 +69,8 @@ class Create_EweiShopV2Page extends MobileLoginPage
         $new_area = intval($area_set['new_area']);
         $address_street = intval($area_set['address_street']);
         $member = m('member')->getMember($_W['openid']);
+
+
         $show_card = true;
         if (p('exchange'))
         {
@@ -154,6 +156,7 @@ class Create_EweiShopV2Page extends MobileLoginPage
             $member['carrier_mobile'] = ((empty($member['carrier_mobile']) ? $member['mobile'] : $member['carrier_mobile']));
             $share = m('common')->getSysset('share');
             $level = m('member')->getLevel($openid);
+
             $id = intval($_GPC['id']);
             $iswholesale = intval($_GPC['iswholesale']);
             $bargain_id = intval($_GPC['bargainid']);

@@ -391,6 +391,8 @@
         </div>
 
     </div>
+
+
     <div class="fui-list-group" >
         {php $i=0}
 
@@ -447,10 +449,6 @@
         {/loop}
         {/loop}
 
-
-
-
-
         <script type="text/javascript">
             $(function(){
                 $(".package-goods-img").height($(".package-goods-img").width());
@@ -495,11 +493,20 @@
         </div>
         {/if}
 
+        <?php if($level["quota"]>0){?>
+         <p style="width: 90%;margin: auto">您所在的会员组每日限购（{$level["quota"]}）件商品，使用折扣券不限</p>
+        <?php}?>
+
+
         <div class="fui-cell  lineblock ">
-            <div class="fui-cell-info c000" style="text-align: right;">共 <span id='goodscount' class='text-danger bigprice'>{$total}</span> 件商品 共计：<span class="text-danger bigprice">&yen; <span class='{if !$packageid && empty($exchangeOrder)}goodsprice{/if} bigprice-packageprice'>{php echo price_format($goodsprice,2)}</span></span></div>
+            <div class="fui-cell-info c000" style="text-align: right;">
+                共 <span id='goodscount' class='text-danger bigprice'>{$total}</span> 件商品
+                共计：<span class="text-danger bigprice">&yen; <span class='{if !$packageid && empty($exchangeOrder)}goodsprice{/if} bigprice-packageprice'>{php echo price_format($goodsprice,2)}</span></span></div>
         </div>
 
     </div>
+
+
 </div>
 
 <input type="hidden" name="giftid" id="giftid" value="{$giftid}">
