@@ -25,6 +25,7 @@ class Withdraw_EweiShopV2Page extends CommissionMobileLoginPage
 			$member['commission_charge'] = 0;
 		}
 
+
 		include $this->template();
 	}
 }
