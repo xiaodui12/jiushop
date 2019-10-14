@@ -2383,6 +2383,9 @@ class Create_EweiShopV2Page extends MobileLoginPage
             }
         }
         $member = m('member')->getMember($openid);
+
+
+
         if ($member['isblack'] == 1)
         {
             show_json(0);
@@ -2442,6 +2445,20 @@ class Create_EweiShopV2Page extends MobileLoginPage
         $ismerch = 0;
         $discountprice_array = array();
         $level = m('member')->getLevel($openid);
+
+        if(!empty($level["quota"])&&empty($_GPC['couponid']))
+        {
+            $start_time=strtotime(date("Y-m-d"),time());
+            $sql="select count(id) as count_order from ims_ewei_shop_order where couponid=0 and openid='".$openid."' and createtime>".$start_time." and status>=0 and uniacid=".$uniacid;
+
+            $select=pdo_fetch($sql);
+
+            if(intval($select["count_order"])>=intval($level["quota"])){
+                show_json(0, '抱歉，您所在会员组每日限购（'.$level["quota"].'）件商品。目前已超出限定。请使用折扣券购买商品，或者明日再购买。');
+                exit;
+            }
+        }
+
         $dispatchid = intval($_GPC['dispatchid']);
         $dispatchtype = intval($_GPC['dispatchtype']);
         $carrierid = intval($_GPC['carrierid']);

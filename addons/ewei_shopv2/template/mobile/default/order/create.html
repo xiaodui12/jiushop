@@ -435,11 +435,12 @@
                     {php $total = 1;}
                     x1<input class="num shownum" type="hidden" name="" value="1"/>
                     {elseif $changenum && !$isgift}
-                    <div class="fui-number small" data-value="{$total}" data-unit="{$g['unit']}" data-maxbuy="{$g['totalmaxbuy']}" data-minbuy="{$g['minbuy']}" data-goodsid="{$g['goodsid']}">
-                        <div class="minus">-</div>
-                        <input class="num shownum" type="tel" name="" value="{$total}"/>
-                        <div class="plus">+</div>
-                    </div>
+                    <!--<div class="fui-number small" data-value="{$total}" data-unit="{$g['unit']}" data-maxbuy="{$g['totalmaxbuy']}" data-minbuy="{$g['minbuy']}" data-goodsid="{$g['goodsid']}">-->
+                        <!--<div class="minus">-</div>-->
+                        <!--<input class="num shownum" type="tel"  name="" value="{$total}"/>-->
+                        <!--<div class="plus">+</div>-->
+                    <!--</div>-->
+                    x{$g['total']}<input class="num shownum" type="hidden" name="" value="{$total}"/>
                     {else}
                     x{$g['total']}<input class="num shownum" type="hidden" name="" value="{$total}"/>
                     {/if}
@@ -500,7 +501,7 @@
 
         <div class="fui-cell  lineblock ">
             <div class="fui-cell-info c000" style="text-align: right;">
-                共 <span id='goodscount' class='text-danger bigprice'>{$total}</span> 件商品
+                <!--共 <span id='goodscount' class='text-danger bigprice'>{$total}</span> 件商品-->
                 共计：<span class="text-danger bigprice">&yen; <span class='{if !$packageid && empty($exchangeOrder)}goodsprice{/if} bigprice-packageprice'>{php echo price_format($goodsprice,2)}</span></span></div>
         </div>
 
