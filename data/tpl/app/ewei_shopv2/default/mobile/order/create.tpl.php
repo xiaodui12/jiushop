@@ -391,6 +391,8 @@
         </div>
 
     </div>
+
+
     <div class="fui-list-group" >
         <?php  $i=0?>
 
@@ -433,11 +435,12 @@
                     <?php  $total = 1;?>
                     x1<input class="num shownum" type="hidden" name="" value="1"/>
                     <?php  } else if($changenum && !$isgift) { ?>
-                    <div class="fui-number small" data-value="<?php  echo $total;?>" data-unit="<?php  echo $g['unit'];?>" data-maxbuy="<?php  echo $g['totalmaxbuy'];?>" data-minbuy="<?php  echo $g['minbuy'];?>" data-goodsid="<?php  echo $g['goodsid'];?>">
-                        <div class="minus">-</div>
-                        <input class="num shownum" type="tel" name="" value="<?php  echo $total;?>"/>
-                        <div class="plus">+</div>
-                    </div>
+                    <!--<div class="fui-number small" data-value="<?php  echo $total;?>" data-unit="<?php  echo $g['unit'];?>" data-maxbuy="<?php  echo $g['totalmaxbuy'];?>" data-minbuy="<?php  echo $g['minbuy'];?>" data-goodsid="<?php  echo $g['goodsid'];?>">-->
+                        <!--<div class="minus">-</div>-->
+                        <!--<input class="num shownum" type="tel"  name="" value="<?php  echo $total;?>"/>-->
+                        <!--<div class="plus">+</div>-->
+                    <!--</div>-->
+                    x<?php  echo $g['total'];?><input class="num shownum" type="hidden" name="" value="<?php  echo $total;?>"/>
                     <?php  } else { ?>
                     x<?php  echo $g['total'];?><input class="num shownum" type="hidden" name="" value="<?php  echo $total;?>"/>
                     <?php  } ?>
@@ -446,10 +449,6 @@
         </div>
         <?php  } } ?>
         <?php  } } ?>
-
-
-
-
 
         <script type="text/javascript">
             $(function(){
@@ -495,11 +494,20 @@
         </div>
         <?php  } ?>
 
+        <?php  if($level["quota"]>0){?>
+         <p style="width: 90%;margin: auto">您所在的会员组每日限购（<?php  echo $level["quota"];?>）件商品，使用折扣券不限</p>
+        <?php }?>
+
+
         <div class="fui-cell  lineblock ">
-            <div class="fui-cell-info c000" style="text-align: right;">共 <span id='goodscount' class='text-danger bigprice'><?php  echo $total;?></span> 件商品 共计：<span class="text-danger bigprice">&yen; <span class='<?php  if(!$packageid && empty($exchangeOrder)) { ?>goodsprice<?php  } ?> bigprice-packageprice'><?php  echo price_format($goodsprice,2)?></span></span></div>
+            <div class="fui-cell-info c000" style="text-align: right;">
+                <!--共 <span id='goodscount' class='text-danger bigprice'><?php  echo $total;?></span> 件商品-->
+                共计：<span class="text-danger bigprice">&yen; <span class='<?php  if(!$packageid && empty($exchangeOrder)) { ?>goodsprice<?php  } ?> bigprice-packageprice'><?php  echo price_format($goodsprice,2)?></span></span></div>
         </div>
 
     </div>
+
+
 </div>
 
 <input type="hidden" name="giftid" id="giftid" value="<?php  echo $giftid;?>">

@@ -62,6 +62,10 @@ if (!class_exists('CommissionModel')) {
             $order      = pdo_fetch('select openid,couponid,agentid,price,goodsprice,deductcredit2,discountprice,isdiscountprice,dispatchprice,changeprice,ispackage,packageid,couponprice,buyagainprice,deductprice,deductenough,merchdeductenough,grprice from ' . tablename('ewei_shop_order') . ' where id=:id limit 1', array(
                 ':id' => $orderid
             ));
+
+            if($order["couponid"]>0){
+                $set["level"]=1;
+            }
             $commission = m('common')->getPluginset('commission');
 
             if (empty($commission['commissiontype'])) {
@@ -76,7 +80,7 @@ if (!class_exists('CommissionModel')) {
             }
 
 
-            $agentid       = !is_null($order_agentid) ? $order_agentid : $order['agentid'];
+            $agentid    = !is_null($order_agentid) ? $order_agentid : $order['agentid'];
             if($order["couponid"]>0){
                 $member = m('member')->getMember($order["openid"]);
                 $agentid=$member["id"];
@@ -134,6 +138,7 @@ if (!class_exists('CommissionModel')) {
                             ':uniacid' => $_W['uniacid']
                         ));
                     }
+
                     if (!empty($seckill_goods)) {
                         $hascommission        = true;
                         $cinfo['commission1'] = array(
@@ -150,11 +155,14 @@ if (!class_exists('CommissionModel')) {
                             $cinfo['commission2']['level' . $level['id']] = $seckill_goods['commission2'] * $cinfo['total'];
                             $cinfo['commission3']['level' . $level['id']] = $seckill_goods['commission3'] * $cinfo['total'];
                         }
-                    } else {
+                    }
+                    else {
                         $goods_commission = !empty($cinfo['commission']) ? json_decode($cinfo['commission'], true) : '';
+
                         if (empty($cinfo['nocommission'])) {
                             $hascommission = true;
                             if ($cinfo['hascommission'] == 1) {
+
                                 if (empty($goods_commission['type'])) {
                                     $cinfo['commission1'] = array(
                                         'default' => 1 <= $set['level'] ? (0 < $cinfo['commission1_rate'] ? round($cinfo['commission1_rate'] * $price / 100, 2) . '' : round($cinfo['commission1_pay'] * $cinfo['total'], 2)) : 0
@@ -165,6 +173,7 @@ if (!class_exists('CommissionModel')) {
                                     $cinfo['commission3'] = array(
                                         'default' => 3 <= $set['level'] ? (0 < $cinfo['commission3_rate'] ? round($cinfo['commission3_rate'] * $price / 100, 2) . '' : round($cinfo['commission3_pay'] * $cinfo['total'], 2)) : 0
                                     );
+
                                     foreach ($levels as $level) {
                                         $cinfo['commission1']['level' . $level['id']] = 0 < $cinfo['commission1_rate'] ? round($cinfo['commission1_rate'] * $price / 100, 2) . '' : round($cinfo['commission1_pay'] * $cinfo['total'], 2);
                                         $cinfo['commission2']['level' . $level['id']] = 0 < $cinfo['commission2_rate'] ? round($cinfo['commission2_rate'] * $price / 100, 2) . '' : round($cinfo['commission2_pay'] * $cinfo['total'], 2);
@@ -270,6 +279,7 @@ if (!class_exists('CommissionModel')) {
                                     }
                                 }
                             } else {
+
                                 $cinfo['commission1'] = array(
                                     'default' => 1 <= $set['level'] ? round($set['commission1'] * $price / 100, 2) . '' : 0
                                 );
@@ -279,11 +289,14 @@ if (!class_exists('CommissionModel')) {
                                 $cinfo['commission3'] = array(
                                     'default' => 3 <= $set['level'] ? round($set['commission3'] * $price / 100, 2) . '' : 0
                                 );
+
+
                                 foreach ($levels as $level) {
                                     $cinfo['commission1']['level' . $level['id']] = 1 <= $set['level'] ? round($level['commission1'] * $price / 100, 2) . '' : 0;
                                     $cinfo['commission2']['level' . $level['id']] = 2 <= $set['level'] ? round($level['commission2'] * $price / 100, 2) . '' : 0;
                                     $cinfo['commission3']['level' . $level['id']] = 3 <= $set['level'] ? round($level['commission3'] * $price / 100, 2) . '' : 0;
                                 }
+
                             }
                             if (0 < $order['ispackage']) {
                                 $packoption = array();
@@ -349,6 +362,8 @@ if (!class_exists('CommissionModel')) {
                                 }
                             }
                         }
+
+
                         pdo_update('ewei_shop_order_goods', array(
                             'commission1' => iserializer($cinfo['commission1']),
                             'commission2' => iserializer($cinfo['commission2']),
@@ -663,16 +678,23 @@ if (!class_exists('CommissionModel')) {
                         }
                     }
                 }
-                $level1_agentids = pdo_fetchall('select id from ' . tablename('ewei_shop_member') . ' where agentid=:agentid  and isagent=1 and status=1 and uniacid=:uniacid ', array(
+                $level1_agentids = pdo_fetchall('select id,openid from ' . tablename('ewei_shop_member') . ' where agentid=:agentid  and isagent=1 and status=1 and uniacid=:uniacid ', array(
                     ':uniacid' => $_W['uniacid'],
                     ':agentid' => $member['id']
                 ), 'id');
+//
                 $level1          = count($level1_agentids);
                 $agentcount += $level1;
             }
-            if (2 <= $level) {
 
+
+            if (2 <= $level) {
                 $where='(o.agentid in( ' . implode(',', array_keys($level1_agentids)) . ')  ';
+//                $level1_openid=[];
+//                foreach ($level1_agentids as $key=>$value){
+//                    $level1_openid[]=$value["openid"];
+//                }
+//                $where='(o.agentid in( ' . implode(',', array_keys($level1_agentids)) . ' or  (o.couponid>0 and o.openid in( ' . implode(',', $level1_openid) . '))';
                 if (0 < $level1) {
                     if (in_array('ordercount0', $options)) {
                         $level2_ordercount = pdo_fetch('select sum(og.realprice) as ordermoney,count(distinct o.id) as ordercount from ' . tablename('ewei_shop_order') . ' o ' . ' left join  ' . tablename('ewei_shop_order_goods') . ' og on og.orderid=o.id ' . ' where '.$where.'  and o.status>=0 and og.status2>=0 and og.nocommission=0 and o.uniacid=:uniacid and o.isparent=0 ' . $where_time . ' limit 1', array(
@@ -1656,6 +1678,7 @@ if (!class_exists('CommissionModel')) {
                 ':id' => $orderid,
                 ':uniacid' => $_W['uniacid']
             ));
+
             if (empty($order)) {
                 return NULL;
             }
@@ -1666,9 +1689,14 @@ if (!class_exists('CommissionModel')) {
             }
             $become_child = intval($set['become_child']);
             $parent       = false;
-            if (empty($become_child)) {
+            if($order["couponid"]>0){
+                $set['level']=1;
+                $parent=$member;
+            }
+            elseif (empty($become_child)) {
                 $parent = m('member')->getMember($member['agentid']);
-            } else {
+            }
+            else {
                 if (!empty($order['officcode']) && p('offic')) {
                     $parent = pdo_fetch('select * from ' . tablename('ewei_shop_member') . ' where mobile = :mobile and uniacid = :uniacid limit 1 ', array(
                         ':mobile' => trim($order['officcode']),
@@ -1821,6 +1849,9 @@ if (!class_exists('CommissionModel')) {
                 ':id' => $orderid,
                 ':uniacid' => $_W['uniacid']
             ));
+            if(!empty($order["couponid"])){
+                $set['level']=1;
+            }
             if (empty($order)) {
                 return NULL;
             }
@@ -2221,7 +2252,7 @@ if (!class_exists('CommissionModel')) {
             if (empty($orderid)) {
                 return NULL;
             }
-            $order = pdo_fetch('select id,openid, ordersn,goodsprice,agentid,finishtime from ' . tablename('ewei_shop_order') . ' where id=:id and status>=3 and uniacid=:uniacid limit 1', array(
+            $order = pdo_fetch('select couponid, id,openid, ordersn,goodsprice,agentid,finishtime from ' . tablename('ewei_shop_order') . ' where id=:id and status>=3 and uniacid=:uniacid limit 1', array(
                 ':id' => $orderid,
                 ':uniacid' => $_W['uniacid']
             ));
@@ -2231,6 +2262,9 @@ if (!class_exists('CommissionModel')) {
             $set = $this->getSet();
             if (empty($set['level'])) {
                 return NULL;
+            }
+            if(!empty($order["couponid"])){
+                $set['level']=1;
             }
             $openid = $order['openid'];
             $member = m('member')->getMember($openid);

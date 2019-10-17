@@ -3864,7 +3864,8 @@ class Create_EweiShopV2Page extends MobileLoginPage
         {
             $order['ordersn2'] = 100;
         }
-        pdo_insert('ewei_shop_order', $order);
+
+       pdo_insert('ewei_shop_order', $order);
         $orderid = pdo_insertid();
         if (function_exists('redis_setarr'))
         {
@@ -3883,6 +3884,7 @@ class Create_EweiShopV2Page extends MobileLoginPage
         {
             pdo_update('ewei_shop_bargain_actor', array('order' => $orderid), array('id' => $goods[0]['bargain_id'], 'openid' => $_W['openid']));
         }
+
         if ($multiple_order == 0)
         {
             $exchangepriceset = $_SESSION['exchangepriceset'];
@@ -4045,6 +4047,7 @@ class Create_EweiShopV2Page extends MobileLoginPage
                         $order['couponmerchid'] = 0;
                     }
                 }
+
                 pdo_insert('ewei_shop_order', $order);
                 $ch_orderid = pdo_insertid();
                 $merch_array[$merchid]['orderid'] = $ch_orderid;

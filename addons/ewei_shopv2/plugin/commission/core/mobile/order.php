@@ -88,10 +88,17 @@ class Order_EweiShopV2Page extends CommissionMobileLoginPage
 			}
 		}
 
+
 		if (2 <= $level) {
 			if (0 < $level1) {
 				$level2_orders = pdo_fetchall('select commission2 ,o.id,o.createtime,o.price,og.commissions   from ' . tablename('ewei_shop_order_goods') . ' og ' . ' left join  ' . tablename('ewei_shop_order') . ' o on og.orderid=o.id ' . ' where o.uniacid=:uniacid and o.agentid in( ' . implode(',', array_keys($member['level1_agentids'])) . (')  ' . $condition . '  and og.status2>=0 and og.nocommission=0 '), array(':uniacid' => $_W['uniacid']));
 
+				var_dump('select commission2 ,o.id,o.createtime,o.price,og.commissions   from '
+					. tablename('ewei_shop_order_goods') . ' og ' . ' left join  ' . tablename('ewei_shop_order') .
+					' o on og.orderid=o.id ' . ' where o.uniacid=:uniacid and o.agentid in( ' .
+					implode(',', array_keys($member['level1_agentids'])) . (')  ' . $condition . '  and og.status2>=0 and og.nocommission=0 '));
+				var_dump($level2_orders);
+				exit;
 				foreach ($level2_orders as $o) {
 					if (empty($o['id'])) {
 						continue;
