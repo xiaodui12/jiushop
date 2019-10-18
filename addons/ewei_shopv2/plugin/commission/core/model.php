@@ -63,9 +63,10 @@ if (!class_exists('CommissionModel')) {
                 ':id' => $orderid
             ));
 
-            if($order["couponid"]>0){
-                $set["level"]=1;
-            }
+
+
+
+
             $commission = m('common')->getPluginset('commission');
 
             if (empty($commission['commissiontype'])) {
@@ -80,11 +81,11 @@ if (!class_exists('CommissionModel')) {
             }
 
 
+
+
+
             $agentid    = !is_null($order_agentid) ? $order_agentid : $order['agentid'];
-            if($order["couponid"]>0){
-                $member = m('member')->getMember($order["openid"]);
-                $agentid=$member["id"];
-            }
+
             $hascommission = false;
             if ($order['isparent'] && $order['parentid'] == 0) {
                 $parent_sql        = 'select id from ' . tablename('ewei_shop_order') . 'where parentid=' . $orderid;
@@ -120,13 +121,23 @@ if (!class_exists('CommissionModel')) {
                         $goods_discount     = round($order_discount * ($cinfo['realprice'] / ($order['goodsprice'] - $order['isdiscountprice'])), 2);
                         $cinfo['realprice'] = $cinfo['realprice'] - $goods_discount;
                     }
+
+
                     if ($single_default) {
                         $cinfo["realprice"] = $cinfo["realprice"] + $order["couponprice"];
                     }
                     if ($real_pay_single && $cinfo["realprice"] - $order["couponprice"] == 0) {
                         $cinfo["realprice"] = 0;
                     }
+
+
                     $price         = $cinfo['realprice'] * $rate;
+
+
+                    $cinfo['commissions_rebate'] =array();
+                    if(!empty($order["couponid"])){
+                        $cinfo['commissions_rebate'] =array("default"=>round($price*$set["rebate_rate"]/100,2));
+                    }
                     $seckill_goods = false;
                     if ($cinfo['seckill']) {
                         $seckill_goods = pdo_fetch('select commission1,commission2,commission3 from ' . tablename('ewei_shop_seckill_task_goods') . '
@@ -343,7 +354,8 @@ if (!class_exists('CommissionModel')) {
                         $commissions = array(
                             'level1' => 0,
                             'level2' => 0,
-                            'level3' => 0
+                            'level3' => 0,
+                            "rate"=>$cinfo["commissions_rebate"]["default"]
                         );
                         if (!empty($agentid)) {
                             $m1 = m('member')->getMember($agentid);
@@ -363,14 +375,16 @@ if (!class_exists('CommissionModel')) {
                             }
                         }
 
-
-                        pdo_update('ewei_shop_order_goods', array(
+                        $save=array(
                             'commission1' => iserializer($cinfo['commission1']),
                             'commission2' => iserializer($cinfo['commission2']),
                             'commission3' => iserializer($cinfo['commission3']),
+                            'commissions_rebate' => iserializer($cinfo['commissions_rebate']),
                             'commissions' => iserializer($commissions),
                             'nocommission' => $cinfo['nocommission']
-                        ), array(
+                        );
+
+                        pdo_update('ewei_shop_order_goods', $save, array(
                             'id' => $cinfo['id']
                         ));
                     }
@@ -481,6 +495,7 @@ if (!class_exists('CommissionModel')) {
             $agentLevel       = $this->getLevel($openid);
             $time             = time();
             $day_times        = intval($set['settledays']) * 3600 * 24;
+            $coupon_time        = intval($set['rebatetime']) * 3600 * 24;
             $agentcount       = 0;
             $ordercount0      = 0;
             $ordermoney0      = 0;
@@ -513,8 +528,184 @@ if (!class_exists('CommissionModel')) {
             $order33money     = 0;
 
 
+
+            /**
+             * 优惠券返现
+            */
+            if (true) {
+                $where="(o.couponid>0 and o.openid=:openid  and o.status>=3) ";
+
+                if (in_array('ordercount0', $options)) {
+                    $level1_ordercount = pdo_fetch('select sum(og.realprice) as ordermoney,count(distinct o.id) as ordercount from ' . tablename('ewei_shop_order') . ' o ' . ' left join  ' . tablename('ewei_shop_order_goods') . ' og on og.orderid=o.id ' . ' where '.$where.' and o.status>=0 and og.status_rate>=0 and og.nocommission=0 and o.uniacid=:uniacid and o.isparent=0 ' . $where_time . ' limit 1', array(
+                        ':uniacid' => $_W['uniacid'],
+                        ':openid' => $member['openid'],
+                    ));
+
+                    $order10 += $level1_ordercount['ordercount'];
+                    $ordercount0 += $level1_ordercount['ordercount'];
+                    $ordermoney0 += $level1_ordercount['ordermoney'];
+                }
+                if (in_array('ordercount', $options)) {
+                    $level1_ordercount = pdo_fetch('select sum(og.realprice) as ordermoney,count(distinct o.id) as ordercount from ' . tablename('ewei_shop_order') . ' o ' . ' left join  ' . tablename('ewei_shop_order_goods') . ' og on og.orderid=o.id ' . ' where '.$where.' and o.status>=1 and og.status_rate>=0 and og.nocommission=0 and o.uniacid=:uniacid and o.isparent=0 ' . $where_time . ' limit 1', array(
+                        ':uniacid' => $_W['uniacid'],
+                        ':openid' => $member['openid'],
+                    ));
+                    $order1 += $level1_ordercount['ordercount'];
+                    $ordercount += $level1_ordercount['ordercount'];
+                    $ordermoney += $level1_ordercount['ordermoney'];
+                }
+                if (in_array('ordercount3', $options)) {
+                    $level1_ordercount3 = pdo_fetch('select sum(og.realprice) as ordermoney,count(distinct o.id) as ordercount from ' . tablename('ewei_shop_order') . ' o ' . ' left join  ' . tablename('ewei_shop_order_goods') . ' og on og.orderid=o.id ' . ' where '.$where.' and o.status>=3 and og.status_rate>=0 and og.nocommission=0 and o.uniacid=:uniacid and o.isparent=0 ' . $where_time . ' limit 1', array(
+                        ':uniacid' => $_W['uniacid'],
+                        ':openid' => $member['openid'],
+                    ));
+                    $order13 += $level1_ordercount3['ordercount'];
+                    $ordercount3 += $level1_ordercount3['ordercount'];
+                    $ordermoney3 += $level1_ordercount3['ordermoney'];
+                    $order13money += $level1_ordercount3['ordermoney'];
+                }
+                if (in_array('total', $options)) {
+                    $level1_commissions = pdo_fetchall('select og.commissions_rebate,og.commissions  from ' . tablename('ewei_shop_order_goods') . ' og ' . ' left join  ' . tablename('ewei_shop_order') . ' o on o.id = og.orderid' . ' where '.$where.' and o.status>=1 and og.nocommission=0 and o.uniacid=:uniacid and o.isparent=0', array(
+                        ':uniacid' => $_W['uniacid'],
+                        ':openid' => $member['openid'],
+                    ));
+                    foreach ($level1_commissions as $c) {
+                        $commissions = iunserializer($c['commissions']);
+                        $commission  = iunserializer($c['commissions_rebate']);
+                        if (empty($commissions)) {
+                            $commission_total += isset($commission['default']) ? $commission['default'] : 0;
+                        } else {
+                            $commission_total += isset($commissions['rate']) ? floatval($commissions['rate']) : 0;
+                        }
+                    }
+
+                }
+
+                if (in_array('ok', $options)) {
+
+                    $level1_commissions = pdo_fetchall('select og.commissions_rebate,og.commissions  from ' . tablename('ewei_shop_order_goods') . ' og ' . ' left join  ' . tablename('ewei_shop_order') .
+                        ' o on o.id = og.orderid' . (' where '.$where.' and o.status>=3 and og.nocommission=0 and (' . $time . ' - o.finishtime > ' . $coupon_time . ' or o.sell_status=1) and og.status_rate=0  and o.uniacid=:uniacid and o.isparent=0'), array(
+                        ':uniacid' => $_W['uniacid'],
+                        ':openid' => $member['openid'],
+                    ));
+                    foreach ($level1_commissions as $c) {
+                        $commissions = iunserializer($c['commissions']);
+                        $commission  = iunserializer($c['commissions_rebate']);
+                        if (empty($commissions)) {
+                            $commission_ok += isset($commission['default']) ? $commission['default'] : 0;
+                        } else {
+                            $commission_ok += isset($commissions['rate']) ? $commissions['rate'] : 0;
+                        }
+                    }
+                }
+                if (in_array('lock', $options)) {
+                    $sql='select og.commissions_rebate,og.commissions  from ' . tablename('ewei_shop_order_goods') . ' og ' . ' left join  ' . tablename('ewei_shop_order') . ' o on o.id = og.orderid' . (' where '.$where.' and o.status>=3 and og.nocommission=0 and (' . $time . ' - o.finishtime <= ' . $coupon_time . ' and   o.sell_status=0)  and og.status_rate=0  and o.uniacid=:uniacid and o.isparent=0');
+
+                    $level1_commissions1 = pdo_fetchall($sql, array(
+                        ':uniacid' => $_W['uniacid'],
+                        ':openid' => $member['openid'],
+                    ));
+
+
+
+                    foreach ($level1_commissions1 as $c) {
+                        $commissions = iunserializer($c['commissions']);
+                        $commission  = iunserializer($c['commissions_rebate']);
+                        if (empty($commissions)) {
+                            $commission_lock +=$commission['default']?$commission['default']:0;
+                        } else {
+                            $commission_lock += isset($commissions['rate']) ? $commissions['rate'] : 0;
+                        }
+                    }
+                }
+                if (in_array('apply', $options)) {
+                    $level1_commissions2 = pdo_fetchall('select og.commissions_rebate,og.commissions  from ' . tablename('ewei_shop_order_goods') . ' og ' . ' left join  ' . tablename('ewei_shop_order') . ' o on o.id = og.orderid' . ' where '.$where.' and o.status>=3 and og.status_rate=1 and og.nocommission=0 and o.uniacid=:uniacid and o.isparent=0', array(
+                        ':uniacid' => $_W['uniacid'],
+                        ':openid' => $member['openid'],
+                    ));
+                    foreach ($level1_commissions2 as $c) {
+                        $commissions = iunserializer($c['commissions']);
+                        $commission  = iunserializer($c['commissions_rebate']);
+                        if (empty($commissions)) {
+                            $commission_apply +=$commission['default']?$commission['default']:0;
+                        } else {
+                            $commission_apply += isset($commissions['rate']) ? $commissions['rate'] : 0;
+                        }
+                    }
+                }
+                if (in_array('check', $options)) {
+                    $level1_commissions2 = pdo_fetchall('select og.commissions_rebate,og.commissions  from ' . tablename('ewei_shop_order_goods') . ' og ' . ' left join  ' . tablename('ewei_shop_order') . ' o on o.id = og.orderid' . ' where '.$where.' and o.status>=3 and og.status_rate=2 and og.nocommission=0 and o.uniacid=:uniacid and o.isparent=0', array(
+                        ':uniacid' => $_W['uniacid'],
+                        ':openid' => $member['openid'],
+                    ));
+                    foreach ($level1_commissions2 as $c) {
+                        $commissions = iunserializer($c['commissions']);
+                        $commission  = iunserializer($c['commissions_rebate']);
+                        if (empty($commissions)) {
+                            $commission_check +=$commission['default']?$commission['default']:0;
+                        } else {
+                            $commission_check += isset($commissions['rate']) ? $commissions['rate'] : 0;
+                        }
+                    }
+                }
+                if (in_array('pay', $options)) {
+                    $level1_commissions2 = pdo_fetchall('select og.commissions_rebate,og.commissions  from ' . tablename('ewei_shop_order_goods') . ' og ' . ' left join  ' . tablename('ewei_shop_order') . ' o on o.id = og.orderid' . ' where '.$where.' and o.status>=3 and og.status_rate=3 and og.nocommission=0 and o.uniacid=:uniacid and o.isparent=0', array(
+                        ':uniacid' => $_W['uniacid'],
+                        ':openid' => $member['openid'],
+                    ));
+                    foreach ($level1_commissions2 as $c) {
+                        $commissions = iunserializer($c['commissions']);
+                        $commission  = iunserializer($c['commissions_rebate']);
+                        if (empty($commissions)) {
+                            $commission_pay += $commission['default']?$commission['default']:0;
+                        } else {
+                            $commission_pay += isset($commissions['rate']) ? $commissions['rate'] : 0;
+                        }
+                    }
+                }
+                if (in_array('wait', $options)) {
+                    $level1_commissions2 = pdo_fetchall('select og.commissions_rebate,og.commissions  from ' . tablename('ewei_shop_order_goods') . ' og ' . ' left join  ' . tablename('ewei_shop_order') . ' o on o.id = og.orderid' . ' where '.$where.' and (o.status=2 or o.status=1) and og.status_rate=0  and og.nocommission=0 and o.uniacid=:uniacid and o.isparent=0', array(
+                        ':uniacid' => $_W['uniacid'],
+                        ':openid' => $member['openid'],
+                    ));
+                    foreach ($level1_commissions2 as $c) {
+                        $commissions = iunserializer($c['commissions']);
+                        $commission  = iunserializer($c['commissions_rebate']);
+                        if (empty($commissions)) {
+                            $commission_wait += $commission['default']?$commission['default']:0;
+                        } else {
+                            $commission_wait +=  isset($commissions['rate']) ? $commissions['rate'] : 0;
+                        }
+                    }
+                }
+                if (in_array('fail', $options)) {
+                    $level1_commissions2 = pdo_fetchall('select og.commissions_rebate,og.commissions  from ' . tablename('ewei_shop_order_goods') . ' og ' . ' left join  ' . tablename('ewei_shop_order') . ' o on o.id = og.orderid' . ' where '.$where.' and o.status=3 and og.status_rate=-1  and og.nocommission=0 and o.uniacid=:uniacid and o.isparent=0', array(
+                        ':uniacid' => $_W['uniacid'],
+                        ':openid' => $member['openid'],
+                    ));
+                    foreach ($level1_commissions2 as $c) {
+                        $commissions = iunserializer($c['commissions']);
+                        $commission  = iunserializer($c['commissions_rebate']);
+                        if (empty($commissions)) {
+                            $commission_fail +=$commission['default']?$commission['default']:0;
+                        } else {
+                            $commission_fail += isset($commissions['rate']) ? $commissions['rate'] : 0;
+                        }
+                    }
+                }
+                $level1_agentids = pdo_fetchall('select id,openid from ' . tablename('ewei_shop_member') . ' where agentid=:agentid  and isagent=1 and status=1 and uniacid=:uniacid ', array(
+                    ':uniacid' => $_W['uniacid'],
+                    ':agentid' => $member['id']
+                ), 'id');
+//
+                $level1_rate         = count($level1_agentids);
+                $agentcount += $level1_rate;
+            }
+
+
+
             if (1 <= $level) {
-                $where="(o.agentid=:agentid or (o.couponid>0 and o.openid=:openid)) ";
+                $where="(o.agentid=:agentid) ";
                 if (in_array('ordercount0', $options)) {
                     $level1_ordercount = pdo_fetch('select sum(og.realprice) as ordermoney,count(distinct o.id) as ordercount from ' . tablename('ewei_shop_order') . ' o ' . ' left join  ' . tablename('ewei_shop_order_goods') . ' og on og.orderid=o.id ' . ' where '.$where.' and o.status>=0 and og.status1>=0 and og.nocommission=0 and o.uniacid=:uniacid and o.isparent=0 ' . $where_time . ' limit 1', array(
                         ':uniacid' => $_W['uniacid'],
@@ -566,7 +757,7 @@ if (!class_exists('CommissionModel')) {
                 if (in_array('ok', $options)) {
 
 
-                    $level1_commissions = pdo_fetchall('select og.commission1,og.commissions  from ' . tablename('ewei_shop_order_goods') . ' og ' . ' left join  ' . tablename('ewei_shop_order') . ' o on o.id = og.orderid' . (' where '.$where.' and o.status>=3 and og.nocommission=0 and (' . $time . ' - o.finishtime > ' . $day_times . ' or o.sell_status=1) and og.status1=0  and o.uniacid=:uniacid and o.isparent=0'), array(
+                    $level1_commissions = pdo_fetchall('select og.commission1,og.commissions  from ' . tablename('ewei_shop_order_goods') . ' og ' . ' left join  ' . tablename('ewei_shop_order') . ' o on o.id = og.orderid' . (' where '.$where.' and o.status>=3 and og.nocommission=0 and (' . $time . ' - o.finishtime > ' . $day_times . ' ) and og.status1=0  and o.uniacid=:uniacid and o.isparent=0'), array(
                         ':uniacid' => $_W['uniacid'],
                         ':agentid' => $member['id'],
                         ':openid' => $member['openid'],
@@ -582,7 +773,7 @@ if (!class_exists('CommissionModel')) {
                     }
                 }
                 if (in_array('lock', $options)) {
-                    $level1_commissions1 = pdo_fetchall('select og.commission1,og.commissions  from ' . tablename('ewei_shop_order_goods') . ' og ' . ' left join  ' . tablename('ewei_shop_order') . ' o on o.id = og.orderid' . (' where '.$where.' and o.status>=3 and og.nocommission=0 and (' . $time . ' - o.finishtime <= ' . $day_times . ' and   o.sell_status=0)  and og.status1=0  and o.uniacid=:uniacid and o.isparent=0'), array(
+                    $level1_commissions1 = pdo_fetchall('select og.commission1,og.commissions  from ' . tablename('ewei_shop_order_goods') . ' og ' . ' left join  ' . tablename('ewei_shop_order') . ' o on o.id = og.orderid' . (' where '.$where.' and o.status>=3 and og.nocommission=0 and (' . $time . ' - o.finishtime <= ' . $day_times . ')  and og.status1=0  and o.uniacid=:uniacid and o.isparent=0'), array(
                         ':uniacid' => $_W['uniacid'],
                         ':agentid' => $member['id']
                     ,
@@ -1679,9 +1870,14 @@ if (!class_exists('CommissionModel')) {
                 ':uniacid' => $_W['uniacid']
             ));
 
+
+
+
+
             if (empty($order)) {
                 return NULL;
             }
+
             $openid = $order['openid'];
             $member = m('member')->getMember($openid);
             if (empty($member)) {
@@ -1689,11 +1885,7 @@ if (!class_exists('CommissionModel')) {
             }
             $become_child = intval($set['become_child']);
             $parent       = false;
-            if($order["couponid"]>0){
-                $set['level']=1;
-                $parent=$member;
-            }
-            elseif (empty($become_child)) {
+           if (empty($become_child)) {
                 $parent = m('member')->getMember($member['agentid']);
             }
             else {
@@ -1822,9 +2014,7 @@ if (!class_exists('CommissionModel')) {
                 ));
             }
             if (!empty($agentid)) {
-                if($order["couponid"]>0){
-                    $agentid=0;
-                }
+
                 $res = pdo_update('ewei_shop_order', array(
                     'agentid' => $agentid
                 ), array(
@@ -1849,9 +2039,7 @@ if (!class_exists('CommissionModel')) {
                 ':id' => $orderid,
                 ':uniacid' => $_W['uniacid']
             ));
-            if(!empty($order["couponid"])){
-                $set['level']=1;
-            }
+
             if (empty($order)) {
                 return NULL;
             }
@@ -2263,9 +2451,7 @@ if (!class_exists('CommissionModel')) {
             if (empty($set['level'])) {
                 return NULL;
             }
-            if(!empty($order["couponid"])){
-                $set['level']=1;
-            }
+
             $openid = $order['openid'];
             $member = m('member')->getMember($openid);
             if (empty($member)) {

@@ -498,7 +498,7 @@ class Apply_EweiShopV2Page extends PluginWebPage
 		$count = pdo_fetchcolumn('select count(*) from ' . tablename('ewei_shop_order') . ' where id in(' . implode(',', $ids) . ')');
 		$totalcommission = 0;
 		$totalpay = 0;
-
+        $totalmoney=0;
 		foreach ($list as &$row) {
 			foreach ($orderids as $o) {
 				if ($o['orderid'] == $row['id']) {
@@ -507,10 +507,20 @@ class Apply_EweiShopV2Page extends PluginWebPage
 				}
 			}
 
-			$goods = pdo_fetchall('SELECT og.id,g.thumb,og.price,og.realprice, og.total,g.title,o.paytype,og.optionname,og.commission1,og.commission2,og.commission3,og.commissions,og.status1,og.status2,og.status3,og.content1,og.content2,og.content3 from ' . tablename('ewei_shop_order_goods') . ' og' . ' left join ' . tablename('ewei_shop_goods') . ' g on g.id=og.goodsid  ' . ' left join ' . tablename('ewei_shop_order') . ' o on o.id=og.orderid  ' . ' where og.uniacid = :uniacid and og.orderid=:orderid and og.nocommission=0 order by og.createtime  desc ', array(':uniacid' => $_W['uniacid'], ':orderid' => $row['id']));
+			$goods = pdo_fetchall('SELECT og.id,g.thumb,og.price,og.realprice, og.total,g.title,o.paytype,og.optionname,og.commissions_rebate,og.commission1,og.commission2,og.commission3,og.commissions,og.status1,og.status2,og.status3,og.content1,og.content2,og.content3 from ' . tablename('ewei_shop_order_goods') . ' og' . ' left join ' . tablename('ewei_shop_goods') . ' g on g.id=og.goodsid  ' . ' left join ' . tablename('ewei_shop_order') . ' o on o.id=og.orderid  ' . ' where og.uniacid = :uniacid and og.orderid=:orderid and og.nocommission=0 order by og.createtime  desc ', array(':uniacid' => $_W['uniacid'], ':orderid' => $row['id']));
 
 			foreach ($goods as &$g) {
 				$commissions = iunserializer($g['commissions']);
+
+                if($row['level']=="rate"){
+                    $commission=iunserializer($g['commissions_rebate']);
+                    $g['commissions_rebate'] = isset($commissions['rate' ]) ? $commissions['rate'] : $commission['default'];
+                    $totalcommission += $g['commissions_rebate'];
+                    if (2 <= $g['status_rate']) {
+                        $totalpay += $g['commissions_rebate'];
+                    }
+				}
+
 
 				if (1 <= $this->set['level']) {
 					$commission = iunserializer($g['commission1']);
