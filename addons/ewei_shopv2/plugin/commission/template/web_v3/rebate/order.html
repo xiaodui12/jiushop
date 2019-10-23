@@ -13,6 +13,24 @@
     .paytype span{
         vertical-align: middle;
     }
+    .button_group{
+        width: 450px;
+        margin-bottom: 30px;
+    }
+    .button_group .button_one{
+        width: 24%;
+        border: 1px solid #eeeeee;
+        background: #eeeeee;
+        display: inline-block;
+        margin: 0px;
+        text-align: center;
+        line-height: 3em;
+        cursor: pointer;
+    }
+    .button_group .button_select{
+        background: #0d8ddb;
+        color: #ffffff;
+    }
 </style>
 
 <div class="page-header">
@@ -79,6 +97,14 @@
 
     </form>
 
+    <div>
+        <div class="button_group">
+            <a class="button_one {if $rebate_status=='all'}button_select{/if}"  href="{php echo webUrl('commission.rebate.order', array('rebate_status' => 'all'))}">全部</a>
+            <a class="button_one {if $rebate_status=='1'}button_select{/if}"  href="{php echo webUrl('commission.rebate.order', array('rebate_status' => '1'))}">挂售中</a>
+            <a class="button_one {if $rebate_status=='2'}button_select{/if}"  href="{php echo webUrl('commission.rebate.order', array('rebate_status' => '2'))}">已售出</a>
+            <a class="button_one {if $rebate_status=='3'}button_select{/if}"  href="{php echo webUrl('commission.rebate.order', array('rebate_status' => '3'))}">已完成</a>
+        </div>
+    </div>
 
     <div>
         <label><input type="checkbox" id="select_all_order"></label>   <a class="sell_status_button">立即返利</a>

@@ -9,6 +9,9 @@ class Order_EweiShopV2Page extends WebPage
 	{
 		global $_W;
 		global $_GPC;
+
+
+		$rebate_status=empty($_GPC["rebate_status"])?"all":$_GPC["rebate_status"];
 		$pindex = max(1, intval($_GPC['page']));
 		$psize = 20;
 		$merch_plugin = p('merch');
@@ -34,8 +37,24 @@ class Order_EweiShopV2Page extends WebPage
 		if ($ccard_plugin) {
 			$condition .= ' and o.ccard=0 ';
 		}
+        $uniacid = $_W['uniacid'];
 
-		$uniacid = $_W['uniacid'];
+
+		if($rebate_status!="all"){
+            $set          = parent::getSet($uniacid);
+
+            $over_time=intval($set["rebatetime"])*60*60*24+time();
+			if($rebate_status==1){
+                $condition.=" and og.rebate_order_status=0";
+			}elseif ($rebate_status==2){
+                $condition.=" and og.rebate_order_status=1 and og.rebate_order_time<".$over_time;
+			}elseif ($rebate_status==3){
+                $condition.=" and og.rebate_order_status=1 and og.rebate_order_time>".$over_time;
+			}
+
+		}
+
+
 		$paras = $paras1 = array(':uniacid' => $uniacid);
 		$merch_plugin = p('merch');
 		$merch_data = m('common')->getPluginset('merch');
@@ -153,7 +172,8 @@ class Order_EweiShopV2Page extends WebPage
 		}
 
 		if ($condition != ' o.uniacid = :uniacid and o.ismr=0 and o.deleted=0 and o.isparent=0' || !empty($sqlcondition)) {
-			$sql = 'select o.*  from ' . tablename('ewei_shop_order') . ' o' . (' ' . $sqlcondition . ' where ' . $condition . ' ' . $statuscondition . ' GROUP BY o.id ORDER BY o.createtime DESC  ');
+			$sql = 'select o.*  from ' . tablename('ewei_shop_order') . ' o left join ims_ewei_shop_order_goods as og on og.orderid=o.id' . (' ' . $sqlcondition . ' where ' . $condition . ' ' . $statuscondition . ' GROUP BY o.id ORDER BY o.createtime DESC  ');
+
 
 
 
