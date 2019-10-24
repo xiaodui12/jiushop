@@ -129,7 +129,7 @@
             <td colspan='4' >
                 <span style="font-weight: bold;">
                     <label>
-                        <?php if($item["statusvalue"]=='3'&&$item['sell_status']==0&&$item['finishtime']>$rebate_time){
+                        <?php if($item["statusvalue"]=='3'&&$item['sell_status']==0&&$item['rebate_order_status']==1){
                         ?>
                         <input name="sell_status" value="{$item['id']}"    type="checkbox">
                         <?php}else{?>
@@ -344,16 +344,12 @@
                 {else}
                 {$item['m1']['nickname']}
                 {/if}
-
                 <br/>
                 {$item['m1']['realname']}<br/>{$item['m1']['mobile']}</td>
             </td>
 
             <td   rowspan="{php echo count($item['goods'])}" class='ops' style='line-height:20px;text-align:center' ><span class='text-{$item['statuscss']}'>
                 {$item['status']}
-                <?php if($item["statusvalue"]=='3'&&($item['sell_status']==1||$item['finishtime']<$rebate_time)){?>
-                (已返利)
-                <?php}?>
                 </span><br />
             </td>
 

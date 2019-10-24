@@ -24,7 +24,6 @@ class Order_EweiShopV2Page extends CommissionMobileLoginPage
         $member = $this->model->getInfo($_W['openid'], array('total', 'ordercount0'));
         include $this->template();
     }
-
     public function get_list()
     {
         global $_W;
@@ -330,7 +329,6 @@ class Order_EweiShopV2Page extends CommissionMobileLoginPage
 
         show_json(1, array('list' => $list, 'pagesize' => $psize, 'total' => $ordercount));
     }
-
 
     public function get_rebate_list()
     {
