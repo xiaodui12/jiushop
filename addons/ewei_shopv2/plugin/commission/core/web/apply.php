@@ -9,7 +9,7 @@ class Apply_EweiShopV2Page extends PluginWebPage
 	public function __construct($_init = true)
     {
         parent::__construct($_init);
-//        exit;
+
     }
 
     public function main()
@@ -461,6 +461,7 @@ class Apply_EweiShopV2Page extends PluginWebPage
 		$psize = 100;
 		$apply = pdo_fetch('select * from ' . tablename('ewei_shop_commission_apply') . ' where uniacid=:uniacid and id=:id limit 1', array(':uniacid' => $_W['uniacid'], ':id' => $id));
 
+
 		if (empty($apply)) {
 			if ($_W['isajax']) {
 				show_json(0, '提现申请不存在!');
@@ -605,6 +606,8 @@ class Apply_EweiShopV2Page extends PluginWebPage
 
 		if (!empty($set_array['charge'])) {
 			$money_array = m('member')->getCalculateMoney($totalpay, $set_array);
+
+
 
 			if ($money_array['flag']) {
 				$realmoney = $money_array['realmoney'];

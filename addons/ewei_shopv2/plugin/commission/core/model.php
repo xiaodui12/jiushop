@@ -64,9 +64,6 @@ if (!class_exists('CommissionModel')) {
             ));
 
 
-
-
-
             $commission = m('common')->getPluginset('commission');
 
             if (empty($commission['commissiontype'])) {
@@ -2252,6 +2249,13 @@ if (!class_exists('CommissionModel')) {
                 ), array(
                     'id' => $member['id']
                 ));
+            }
+
+
+
+            if(!empty($order["couponid"]))
+            {
+                $agentid=0;
             }
             if (!empty($agentid)) {
 
@@ -5272,8 +5276,14 @@ if (!class_exists('CommissionModel')) {
 
         public function get_rebate_one($goods_id)
         {
-            $sql="select og.* from ims_ewei_shop_order as o LEFT JOIN ims_ewei_shop_order_goods as og on o.id=og.orderid where o.couponid>0 and o.`status`=3 and og.rebate_order_status=0 ".
-                "and og.goodsid=".$goods_id." and o.uniacid=2 and o.sell_status=0 ORDER BY o.createtime asc";
+
+            $sql_getcate="select pcate from ims_ewei_shop_goods where id=".$goods_id;
+            $goods_cate=pdo_fetch($sql_getcate);
+
+            $sql="select og.* from ims_ewei_shop_order as o LEFT JOIN ims_ewei_shop_order_goods as og on o.id=og.orderid ".
+                "LEFT JOIN ims_ewei_shop_goods as g on og.goodsid=g.id  ".
+                " where o.couponid>0 and o.`status`=3 and og.rebate_order_status=0 ".
+                "and g.pcate=".$goods_cate["pcate"]."  and o.uniacid=2 and o.sell_status=0 ORDER BY o.createtime asc";
             $info=pdo_fetch($sql);
             return $info;
         }

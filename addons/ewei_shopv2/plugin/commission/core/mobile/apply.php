@@ -205,8 +205,12 @@ class Apply_EweiShopV2Page extends CommissionMobileLoginPage
 
 		$cansettle = $withdraw <= $commission_ok;
 		$member['commission_ok'] = number_format($commission_ok, 2);
+
 		$set_array = array();
-		$set_array['charge'] = $this->set['withdrawcharge'];
+
+        $type=intval($_GPC['type']);
+
+		$set_array['charge'] =$type==0?$this->set['withdrawcharge_balance']: $this->set['withdrawcharge'];
 		$set_array['begin'] = floatval($this->set['withdrawbegin']);
 		$set_array['end'] = floatval($this->set['withdrawend']);
 		$realmoney = $commission_ok;

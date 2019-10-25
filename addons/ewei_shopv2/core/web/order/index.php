@@ -10,6 +10,7 @@ class Index_EweiShopV2Page extends WebPage
 		global $_W;
 		$set = m('common')->getSysset('template');
 
+
 		if (!empty($set['style_v3'])) {
 			if (cv('order.list.status1')) {
 				header('location: ' . webUrl('order.list.status1'));
