@@ -6,7 +6,13 @@ if (!defined('IN_IA')) {
 
 class Apply_EweiShopV2Page extends PluginWebPage
 {
-	public function main()
+	public function __construct($_init = true)
+    {
+        parent::__construct($_init);
+//        exit;
+    }
+
+    public function main()
 	{
 		global $_W;
 		global $_GPC;
@@ -507,7 +513,7 @@ class Apply_EweiShopV2Page extends PluginWebPage
 				}
 			}
 
-			$goods = pdo_fetchall('SELECT og.id,g.thumb,og.price,og.realprice, og.total,g.title,o.paytype,og.optionname,og.commissions_rebate,og.commission1,og.commission2,og.commission3,og.commissions,og.status1,og.status2,og.status3,og.content1,og.content2,og.content3 from ' . tablename('ewei_shop_order_goods') . ' og' . ' left join ' . tablename('ewei_shop_goods') . ' g on g.id=og.goodsid  ' . ' left join ' . tablename('ewei_shop_order') . ' o on o.id=og.orderid  ' . ' where og.uniacid = :uniacid and og.orderid=:orderid and og.nocommission=0 order by og.createtime  desc ', array(':uniacid' => $_W['uniacid'], ':orderid' => $row['id']));
+			$goods = pdo_fetchall('SELECT og.id,g.thumb,og.price,og.realprice, og.total,g.title,o.paytype,og.optionname,og.commissions_rebate,og.commission1,og.commission2,og.commission3,og.commissions,og.status1,og.status2,og.status3,og.content1,og.content2,og.content3,og.status_rate,og.commissions_rebate from ' . tablename('ewei_shop_order_goods') . ' og' . ' left join ' . tablename('ewei_shop_goods') . ' g on g.id=og.goodsid  ' . ' left join ' . tablename('ewei_shop_order') . ' o on o.id=og.orderid  ' . ' where og.uniacid = :uniacid and og.orderid=:orderid and og.nocommission=0 order by og.createtime  desc ', array(':uniacid' => $_W['uniacid'], ':orderid' => $row['id']));
 
 			foreach ($goods as &$g) {
 				$commissions = iunserializer($g['commissions']);
@@ -587,6 +593,7 @@ class Apply_EweiShopV2Page extends PluginWebPage
 			$totalmoney += $row['price'];
 		}
 
+
 		unset($row);
 		$totalcount = $total = pdo_fetchcolumn('select count(*) from ' . tablename('ewei_shop_order') . ' o ' . ' left join ' . tablename('ewei_shop_member') . ' m on o.openid = m.openid ' . ' left join ' . tablename('ewei_shop_member_address') . ' a on a.id = o.addressid ' . ' where o.id in ( ' . implode(',', $ids) . ' );');
 		$set_array = array();
@@ -620,6 +627,7 @@ class Apply_EweiShopV2Page extends PluginWebPage
 		if (6 < $pindex) {
 			$slice = $pindex - 6;
 		}
+
 
 		is_array($page_num_arr) && ($page_num_arr = array_slice($page_num_arr, $slice, 10));
 		return array('id' => $id, 'status' => $status, 'apply' => $apply, 'list' => $list, 'listpage' => $listpage, 'totalcount' => $totalcount, 'totalmoney' => $totalmoney, 'member' => $member, 'totalpay' => $totalpay, 'totalcommission' => $totalcommission, 'realmoney' => $realmoney, 'deductionmoney' => $deductionmoney, 'charge' => $set_array['charge'], 'agentLevel' => $agentLevel, 'set_array' => $set_array, 'apply_type' => $apply_type);
@@ -878,6 +886,8 @@ class Apply_EweiShopV2Page extends PluginWebPage
 		$order_ids = iunserializer($apply['orderids']);
 		$order_level = array();
 
+
+
 		foreach ($order_ids as $oid) {
 			$order_level[$oid['orderid']] = $oid['level'];
 		}
@@ -890,6 +900,7 @@ class Apply_EweiShopV2Page extends PluginWebPage
 		$ogids = array();
 		$sid = 0;
 
+
 		foreach ($list as $row) {
 			$goods = pdo_fetchall('SELECT id from ' . tablename('ewei_shop_order_goods') . ' where uniacid = :uniacid and orderid=:orderid and nocommission=0', array(':uniacid' => $_W['uniacid'], ':orderid' => $row['id']));
 
@@ -901,6 +912,7 @@ class Apply_EweiShopV2Page extends PluginWebPage
 			}
 		}
 
+
 		if (!is_array($ogids)) {
 			show_json(0, '数据出错，请重新设置!');
 		}
@@ -910,7 +922,7 @@ class Apply_EweiShopV2Page extends PluginWebPage
 		$ischeck = $_GPC['ischeck'];
 
 		foreach ($ogids as $ogid) {
-			$g = pdo_fetch('SELECT total, orderid,commission1,commission2,commission3,commissions from ' . tablename('ewei_shop_order_goods') . '  ' . 'where id=:id and uniacid = :uniacid limit 1', array(':uniacid' => $_W['uniacid'], ':id' => $ogid));
+			$g = pdo_fetch('SELECT total, orderid,commission1,commission2,commission3,commissions_rebate,commissions from ' . tablename('ewei_shop_order_goods') . '  ' . 'where id=:id and uniacid = :uniacid limit 1', array(':uniacid' => $_W['uniacid'], ':id' => $ogid));
 
 			if (empty($g)) {
 				continue;
@@ -1030,6 +1042,20 @@ class Apply_EweiShopV2Page extends PluginWebPage
 
 					$update = array('checktime3' => $time, 'status3' => $status3, 'content3' => isset($_GPC['content3_' . $ogid]) ? $_GPC['content3_' . $ogid] : '');
 				}
+
+
+				if($order_level[$g['orderid']]=="rate"){
+                    if ($ischeck) {
+                            $status_rate = 2;
+                            $paycommission += $g['commissions_rebate'];
+                            $isAllUncheck = false;
+
+                    }
+                    else {
+                        $status1 = -1;
+                    }
+                    $update = array('checktime_rebate' => $time, 'status_rate' => $status_rate);
+                }
 			}
 
 			if (!empty($update)) {
@@ -1171,8 +1197,10 @@ class Apply_EweiShopV2Page extends PluginWebPage
 			show_json(0, '此申请不能打款!');
 		}
 
+
 		$time = time();
 		$pay = round($realmoney, 2);
+
 
 		if ($apply['type'] < 2) {
 			if ($apply['type'] == 1) {
@@ -1266,6 +1294,9 @@ class Apply_EweiShopV2Page extends PluginWebPage
 						if ($row['level'] == 3 && $g['status3'] == 2) {
 							$update = array('paytime3' => $time, 'status3' => 3);
 						}
+						if ($row['level'] == "rate" && $g['status_rate'] == 2) {
+							$update = array('paytime_rebate' => $time, 'status_rate' => 3);
+						}
 					}
 				}
 
@@ -1275,6 +1306,7 @@ class Apply_EweiShopV2Page extends PluginWebPage
 			}
 		}
 
+
 		pdo_update('ewei_shop_commission_apply', array('status' => 3, 'paytime' => $time, 'commission_pay' => $totalpay, 'realmoney' => $realmoney, 'deductionmoney' => $deductionmoney), array('id' => $id, 'uniacid' => $_W['uniacid']));
 		$log = array('uniacid' => $_W['uniacid'], 'applyid' => $apply['id'], 'mid' => $member['id'], 'commission' => $totalcommission, 'commission_pay' => $totalpay, 'realmoney' => $realmoney, 'deductionmoney' => $deductionmoney, 'charge' => $charge, 'createtime' => $time, 'type' => $apply['type']);
 		pdo_insert('ewei_shop_commission_log', $log);
@@ -1283,6 +1315,7 @@ class Apply_EweiShopV2Page extends PluginWebPage
 		if (!empty($deductionmoney)) {
 			$mcommission .= ',实际到账金额:' . $realmoney . ',提现手续费金额:' . $deductionmoney;
 		}
+
 
 		$this->model->sendMessage($member['openid'], array('commission' => $mcommission, 'type' => $apply_type[$apply['type']]), TM_COMMISSION_PAY);
 		$this->model->upgradeLevelByCommissionOK($member['openid']);

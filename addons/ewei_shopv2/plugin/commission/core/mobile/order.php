@@ -467,17 +467,16 @@ class Order_EweiShopV2Page extends CommissionMobileLoginPage
         $ordercount = $member['ordercount0'];
 
 
-
-
-
-
         if (1 <= $level) {
             $where_agent=" ( o.agentid=:agentid ) ";
             $level1_memberids = pdo_fetchall('select id from ' . tablename('ewei_shop_member') . ' where uniacid=:uniacid and agentid=:agentid ',
                 array(':uniacid' => $_W['uniacid'], ':agentid' => $member['id']), 'id');
             $level1_orders = pdo_fetchall('select commission1,o.id,o.createtime,o.price,og.commissions from ' . tablename('ewei_shop_order_goods') . ' og ' .
                 ' left join  ' . tablename('ewei_shop_order') . ' o on og.orderid=o.id ' . (' where o.uniacid=:uniacid and '.$where_agent . $condition .
-                    ' and og.status1>=0 and og.nocommission=0'), array(':uniacid' => $_W['uniacid'], ':agentid' => $member['id'],':openid' => $member['openid']));
+                    ' and og.status1>=0 and og.nocommission=0'), array(':uniacid' => $_W['uniacid'], ':agentid' => $member['id']));
+
+
+
 
             foreach ($level1_orders as $o) {
                 if (empty($o['id'])) {
