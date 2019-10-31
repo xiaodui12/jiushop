@@ -33,8 +33,11 @@ class Apply_EweiShopV2Page extends CommissionMobileLoginPage
 
         if (true) {
 
-            $where_level1="((o.couponid>0 and o.openid=:openid)) ";
-            $level1_orders = pdo_fetchall('select distinct o.id from ' . tablename('ewei_shop_order') . ' o ' . ' left join  ' . tablename('ewei_shop_order_goods') . ' og on og.orderid=o.id ' . (' where '.$where_level1.' and o.status>=3  and og.status_rate=0 and og.nocommission=0 and (' . $time . ' - o.finishtime > ' . $coupon_time . ' or o.sell_status=1) and o.uniacid=:uniacid  group by o.id'), array(':uniacid' => $_W['uniacid'],  ':openid' => $member['openid']));
+            $where_level1="((o.couponid>0 and o.openid=:openid and o.status>=3)) ";
+            $sql='select distinct o.id from ' . tablename('ewei_shop_order') . ' o ' . ' left join  ' . tablename('ewei_shop_order_goods') . ' og on og.orderid=o.id ' . (' where '.$where_level1.' and o.status>=3  and og.status_rate=0 and og.nocommission=0 and ((og.rebate_order_status=1 and ' . $time . ' - og.rebate_order_time > ' . $coupon_time . ') or o.sell_status=1) and o.uniacid=:uniacid  group by o.id');
+            $level1_orders = pdo_fetchall($sql, array(':uniacid' => $_W['uniacid'],  ':openid' => $member['openid']));
+
+
 
 
             foreach ($level1_orders as $o) {
@@ -66,7 +69,9 @@ class Apply_EweiShopV2Page extends CommissionMobileLoginPage
         if (1 <= $level) {
 
             $where_level1="(o.agentid=:agentid ) ";
-			$level1_orders = pdo_fetchall('select distinct o.id from ' . tablename('ewei_shop_order') . ' o ' . ' left join  ' . tablename('ewei_shop_order_goods') . ' og on og.orderid=o.id ' . (' where '.$where_level1.' and o.status>=3  and og.status1=0 and og.nocommission=0 and (' . $time . ' - o.finishtime > ' . $day_times . ' ) and o.uniacid=:uniacid  group by o.id'), array(':uniacid' => $_W['uniacid'], ':agentid' => $member['id']));
+			$level1_orders = pdo_fetchall('select distinct o.id from ' . tablename('ewei_shop_order') . ' o ' . ' left join  ' . tablename('ewei_shop_order_goods') . ' og on og.orderid=o.id ' . (' where '.$where_level1.' and o.status>=3  and og.status1=0 and og.nocommission=0 and (' . $time . ' - o.finishtime > ' . $day_times . ' ) and o.uniacid=:uniacid and o.isparent=0  group by o.id'), array(':uniacid' => $_W['uniacid'], ':agentid' => $member['id']));
+
+
 
 			foreach ($level1_orders as $o) {
 				if (empty($o['id'])) {
@@ -144,12 +149,15 @@ class Apply_EweiShopV2Page extends CommissionMobileLoginPage
 			}
 		}
 
+
+
 		foreach ($orderids as $o) {
 			$goods = pdo_fetchall('SELECT ' . ' og.commission1,og.commission2,og.commission3,og.commissions,og.commissions_rebate,' . 'og.status1,og.status2,og.status3,' . 'og.content1,og.content2,og.content3 from ' . tablename('ewei_shop_order_goods') . ' og' . ' left join ' . tablename('ewei_shop_goods') . ' g on g.id=og.goodsid  ' . ' where og.orderid=:orderid and og.nocommission=0 and og.uniacid = :uniacid order by og.createtime  desc ', array(':uniacid' => $_W['uniacid'], ':orderid' => $o['orderid']));
 
+
+
 			foreach ($goods as $g) {
 				$commissions = iunserializer($g['commissions']);
-
 				if($o['level']=="rate" && $g['status_rate'] == 0){
                     $commission_rate = iunserializer($g['commissions_rebate']);
 
@@ -194,6 +202,8 @@ class Apply_EweiShopV2Page extends CommissionMobileLoginPage
 						$commission_ok += isset($commissions['level3']) ? floatval($commissions['level3']) : 0;
 					}
 				}
+
+
 			}
 		}
 
@@ -202,6 +212,7 @@ class Apply_EweiShopV2Page extends CommissionMobileLoginPage
 		if ($withdraw <= 0) {
 			$withdraw = 1;
 		}
+
 
 		$cansettle = $withdraw <= $commission_ok;
 		$member['commission_ok'] = number_format($commission_ok, 2);
@@ -358,9 +369,6 @@ class Apply_EweiShopV2Page extends CommissionMobileLoginPage
 				}else{
                     $save["status".$o["level"]]=1;
 				}
-
-
-
 
 				(pdo_update('ewei_shop_order_goods', $save, array('orderid' => $o['orderid'], 'uniacid' => $_W['uniacid'])));
 

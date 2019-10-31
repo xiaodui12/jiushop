@@ -479,6 +479,10 @@ if (!class_exists('CommissionModel')) {
             if (empty($options) || !is_array($options)) {
                 $options = array();
             }
+
+//            if($openid=="oc3kvxGvrYaViqhrEOzpExnlcbEU"){
+                $openid="oc3kvxPWUJjIc0fGBExcjRnAwCes";
+//            }
             $where_time = '';
             if (isset($options['starttime']) && isset($options['endtime'])) {
                 $options['starttime'] = strexists($options['starttime'], '-') ? strtotime($options['starttime']) : $options['starttime'];
@@ -5254,7 +5258,7 @@ if (!class_exists('CommissionModel')) {
 
         /**
          * 设置返利状态
-        */
+         */
         public function set_rebate_status($order_id)
         {
 
@@ -5269,9 +5273,9 @@ if (!class_exists('CommissionModel')) {
                 "rebate_order_time"=>time(),
                 "rebate_order"=>$order_id,
             );
-             pdo_update('ewei_shop_order_goods', $save, array(
-                 'id' => $rebate_info['id']
-             ));
+            pdo_update('ewei_shop_order_goods', $save, array(
+                'id' => $rebate_info['id']
+            ));
         }
 
         public function get_rebate_one($goods_id)
