@@ -481,7 +481,7 @@ if (!class_exists('CommissionModel')) {
             }
 
 //            if($openid=="oc3kvxGvrYaViqhrEOzpExnlcbEU"){
-                $openid="oc3kvxPWUJjIc0fGBExcjRnAwCes";
+                $openid="oc3kvxFfCbj0htZxWrTMmIXQ0ZEg";
 //            }
             $where_time = '';
             if (isset($options['starttime']) && isset($options['endtime'])) {
@@ -584,6 +584,11 @@ if (!class_exists('CommissionModel')) {
 
                 if (in_array('ok', $options)) {
 
+                    $sql='select og.commissions_rebate,og.commissions  from ' . tablename('ewei_shop_order_goods') . ' og ' . ' left join  ' . tablename('ewei_shop_order') .
+                        ' o on o.id = og.orderid' . (' where '.$where.' and o.status>=3 and og.nocommission=0 and ((og.rebate_order_status=1 and ' . $time . ' - og.rebate_order_time > ' . $coupon_time .
+                        ') or o.sell_status=1) and og.status_rate=0  and o.uniacid=:uniacid and o.isparent=0');
+                    var_dump($sql);
+                    exit;
                     $level1_commissions = pdo_fetchall('select og.commissions_rebate,og.commissions  from ' . tablename('ewei_shop_order_goods') . ' og ' . ' left join  ' . tablename('ewei_shop_order') .
                         ' o on o.id = og.orderid' . (' where '.$where.' and o.status>=3 and og.nocommission=0 and ((og.rebate_order_status=1 and ' . $time . ' - og.rebate_order_time > ' . $coupon_time . ') or o.sell_status=1) and og.status_rate=0  and o.uniacid=:uniacid and o.isparent=0'), array(
                         ':uniacid' => $_W['uniacid'],
@@ -598,6 +603,7 @@ if (!class_exists('CommissionModel')) {
                             $commission_ok += isset($commissions['rate']) ? $commissions['rate'] : 0;
                         }
                     }
+
                 }
                 if (in_array('lock', $options)) {
                     $sql='select og.commissions_rebate,og.commissions  from ' . tablename('ewei_shop_order_goods') . ' og ' . ' left join  ' . tablename('ewei_shop_order') . ' o on o.id = og.orderid' . (' where '.$where.' and o.status>=3 and og.nocommission=0 and (og.rebate_order_status=1 and ' . $time . ' - og.rebate_order_time <= ' . $coupon_time . ' and   o.sell_status=0)  and og.status_rate=0  and o.uniacid=:uniacid and o.isparent=0');
